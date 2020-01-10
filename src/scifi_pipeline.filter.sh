@@ -90,19 +90,21 @@ SUMMARIZER=`pwd`/src/scifi_pipeline.summarizer.py
 
 ADDITIONAL_ARGS=""
 JOB_DESCR="filter"
+OUTPUT_SUFFIX="metrics"
 if [[ $SPECIES_MIXTURE = "1" ]]; then
     ADDITIONAL_ARGS="$ADDITIONAL_ARGS --species-mixture "
 fi
 if [[ $CORRECT_BARCODES = "1" ]]; then
     ADDITIONAL_ARGS="$ADDITIONAL_ARGS --correct-r2-barcodes "
     JOB_DESCR="filter_corrected"
+    OUTPUT_SUFFIX="metrics_corrected"
 fi
 if [[ ! -z $CORRECT_BARCODE_FILE ]]; then
     ADDITIONAL_ARGS="$ADDITIONAL_ARGS --correct-r2-barcode-file $CORRECT_BARCODE_FILE"
 fi
 
 if [[ ! -z NO_OVERWRITE ]]; then
-    NO_OVERWRITE="1"
+    NO_OVERWRITE="0"
 fi
 
 mkdir -p $ROOT_OUTPUT_DIR
@@ -115,7 +117,7 @@ rm -rf $ARRAY_FILE
 for SAMPLE_NAME in `tail -n +2 $BARCODE_ANNOTATION | cut -d , -f 1`; do
     SAMPLE_DIR=${ROOT_OUTPUT_DIR}/${SAMPLE_NAME}
     if [[ $NO_OVERWRITE = "1" ]]; then
-        if [[ ! -f ${SAMPLE_DIR}/${SAMPLE_NAME}.metrics.csv.gz ]]; then
+        if [[ ! -f ${SAMPLE_DIR}/${SAMPLE_NAME}.${OUTPUT_SUFFIX}.csv.gz ]]; then
             echo $SAMPLE_NAME $SAMPLE_DIR >> $ARRAY_FILE
         fi
     else
@@ -126,9 +128,9 @@ done
 
 # Now submit job array in steps
 TOTAL=`cat $ARRAY_FILE | wc -l`
+# TOTAL=$((ARRAY_SIZE<TOTAL ? ARRAY_SIZE : TOTAL))
 
 # # reduce array size if not enough samples to do
-TOTAL=$((TOTAL<ARRAY_SIZE ? TOTAL : ARRAY_SIZE))
 ARRAY_SIZE=$((TOTAL<ARRAY_SIZE ? TOTAL : ARRAY_SIZE))
 
 for i in `seq 0 $ARRAY_SIZE $((TOTAL - 1))`; do

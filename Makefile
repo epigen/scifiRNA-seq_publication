@@ -25,6 +25,7 @@ ifeq ($(SPECIES_MIXING), 1)
 endif
 CHUNKS ?= 1000
 CHUNK_BATCH_SIZE ?= 25
+GRNA_PBS_SEQUENCE ?= GTGGAAAGGACGAAACACCG
 
 
 trim: parse
@@ -35,6 +36,7 @@ trim: parse
 	--flowcell=$(FLOWCELL) \
 	--n-lanes=$(N_LANES) \
 	--annotation=$(ANNOTATION) \
+	--pbs-sequence=$(GRNA_PBS_SEQUENCE) \
 	--cpus=1 \
 	--mem=8000 \
 	--queue=longq \
@@ -85,9 +87,9 @@ filter: parse
 	--variables=$(VARIABLES) \
 	--species-mixture=$(SPECIES_MIXING) \
 	--cpus=1 \
-	--mem=48000 \
+	--mem=8000 \
 	--queue=shortq \
-	--time=06:00:00 \
+	--time=01:00:00 \
 	--array-size=$(ARRAY_SIZE)
 	$(info "scifi_pipeline: done")
 

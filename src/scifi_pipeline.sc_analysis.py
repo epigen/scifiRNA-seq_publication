@@ -31,6 +31,8 @@ def parse_args():
     # args = parser.parse_args("--name PD190_sixlines. results/PD190_sixlines.h5ad results/PD190_sixlines. --species-mixture --r1-attributes plate_well,cell_line".split(" "))
     args = parser.parse_args()
 
+    # args = parser.parse_args("--name PD193_fivelines_383k. results/PD193_fivelines_383k.h5ad results/PD193_fivelines_383k. --r1-attributes plate_well,cell_line".split(" "))
+
     if args.name is None:
         args.name = args.output_prefix
     args.r1_attributes = args.r1_attributes.split(",")
@@ -48,7 +50,8 @@ def main():
     # convenience
     gene_set_libraries = [
         'Human_Gene_Atlas', 'ARCHS4_Tissues', 'WikiPathways_2019_Human',
-        'NCI-Nature_2016', 'ENCODE_and_ChEA_Consensus_TFs_from_ChIP-X', 'GO_Biological_Process_2018']
+        'NCI-Nature_2016', 'ENCODE_and_ChEA_Consensus_TFs_from_ChIP-X',
+        'GO_Biological_Process_2018']
 
     # read h5ad file
     sc.settings.n_jobs = -1
@@ -64,11 +67,15 @@ def main():
             adata.var_names.str.startswith("ENSMUS"),
             index=adata.var.index
         ).replace(True, "mouse").replace(False, "human")
-    human_m = query_biomart(attributes=["ensembl_gene_id", "external_gene_name"], species="hsapiens", ensembl_version='grch38')
+    human_m = query_biomart(
+        attributes=["ensembl_gene_id", "external_gene_name"],
+        species="hsapiens", ensembl_version='grch38')
     v = adata.var.join(human_m.set_index("ensembl_gene_id"))
 
     if args.species_mixture:
-        mouse_m = query_biomart(attributes=["ensembl_gene_id", "external_gene_name"], species="mmusculus", ensembl_version='grcm38')
+        mouse_m = query_biomart(
+            attributes=["ensembl_gene_id", "external_gene_name"],
+            species="mmusculus", ensembl_version='grcm38')
         v.update(mouse_m.set_index("ensembl_gene_id"))
     adata.var.index = v['external_gene_name'].fillna(v.index.to_series()).values
     adata.var_names_make_unique()
@@ -84,9 +91,23 @@ def main():
     adata.obs.loc[:, 'n_counts'] = adata.X.sum(axis=1).A1
     adata.obs.loc[:, 'log_counts'] = np.log10(adata.obs.loc[:, 'n_counts'])
     adata.obs.loc[:, 'n_genes'] = (adata.X != 0).sum(1).A1
+    adata.obs.loc[:, 'log_genes'] = np.log10(adata.obs.loc[:, 'n_genes'])
+
+
 
     # Filter
     print(f"# {time.asctime()} - Filtering.")
+    sc.pp.filter_cells(
+        adata, min_counts=50)
+    grid = sns.FacetGrid(
+        data=adata.obs[
+            ['log_counts', 'log_genes', 'percent_mito', 'percent_ribo']
+        ].melt(),
+        col="variable", sharex=False, sharey=False)
+    grid.map(sns.distplot, "value", kde=False)
+    for ax in grid.axes.flat:
+        ax.set_yscale("log")
+
     sc.pp.filter_cells(
         adata, min_counts=100)
     sc.pp.filter_cells(
@@ -108,9 +129,13 @@ def main():
     adata.obs = adata.obs.assign(plate_well=info)
     # remove cells not matching annotation
     if adata.obs['plate_well'].isnull().sum() > 0:
-        print(f"# {time.asctime()} - Warning: not all cells matched plate_well annotation.")
+        msg = "Warning: not all cells matched plate_well annotation."
+        print(f"# {time.asctime()} - {msg}")
         adata = adata[~adata.obs['plate_well'].isnull(), :]
-    adata.obs = adata.obs.merge(annotation[args.r1_attributes], on=["plate_well"], validate='many_to_one').set_index(adata.obs.index)
+    adata.obs = adata.obs.merge(
+        annotation[args.r1_attributes],
+        on=["plate_well"], validate='many_to_one'
+    ).set_index(adata.obs.index)
 
     if args.r1_attributes == ['plate_well', 'cell_line']:
         adata.obs = adata.obs.assign(

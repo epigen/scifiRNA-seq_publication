@@ -104,10 +104,10 @@ if [[ $string == *"gRNA"* ]]; then
     INPUT_BAM=${PREFIX}.trimmed.bam
 else
     BAMS=()
-    # DIR=/scratch/users/dbarreca/private/custom_demux/scRNA/${FLOWCELL}
+    DIR=/scratch/users/dbarreca/private/custom_demux/scRNA/${FLOWCELL}
     # DIR=/scratch/users/arendeiro/custom_demux/scRNA
     # DIR=/scratch/lab_bsf/samples/${FLOWCELL}
-    DIR=/scratch/lab_bock/shared/projects/sci-rna/data/external/${FLOWCELL}/
+    # DIR=/scratch/lab_bock/shared/projects/sci-rna/data/external/${FLOWCELL}/
     if [[ $N_BARCODES -gt 1 ]]; then
         for LANE in ${LANES[@]}; do
             BAMS+=(`eval echo $DIR/${FLOWCELL}_${LANE}_samples/${FLOWCELL}_${LANE}#${SAMPLE_NAME}_{01..$N_BARCODES}.bam`)

@@ -713,7 +713,7 @@ def from_pickle(key, array=False):
     # df = pickle.load(open(args.output_prefix + "all.pickle", 'rb'))
 
 
-def cells_per_droplet_stats(cells_per_droplet):
+def cells_per_droplet_stats(cells_per_droplet, suffix=""):
     # Observe statistical properties
     def poisson(k, lamb):
         from scipy.special import factorial
@@ -748,10 +748,12 @@ def cells_per_droplet_stats(cells_per_droplet):
         ax.set_xlabel("Cells")
         ax.set_ylabel("Droplets")
         ax.legend()
+        ax.set_xlim(right=min(ax.get_xlim()[1], 25))
     axis[1].set_yscale("log")
     axis[1].set_ylim(bottom=0.1)
     fig.savefig(
-        args.output_prefix + f"cells_per_droplet.poissonian_properties.svg",
+        args.output_prefix + f"cells_per_droplet.poissonian_properties.{suffix}.svg"
+        .replace("..", "."),
         dpi=300, bbox_inches="tight")
 
 
@@ -826,6 +828,7 @@ def get_full_files(cell_barcodes=['r2'], doublet_threshold=0.85):
 
 def inflection_point(curve):
     """Return the index of the inflection point of a curve"""
+    # knee
     from numpy.matlib import repmat
 
     n_points = len(curve)

@@ -1,5 +1,10 @@
 #!/usr/bin/env python3
 
+"""
+The entry point to running the scifi_pipeline on several samples.
+
+"""
+
 import sys
 from argparse import ArgumentParser
 import subprocess
@@ -8,15 +13,37 @@ import pandas as pd
 
 
 def main():
+    print("scifi-RNA-seq pipeline")
     parser = ArgumentParser()
-    cmds = ['trim', 'map', 'filter', 'join', 'plot', 'report']
+    cmds = [
+        'trim', 'map', 'maketracks', 'filter', 'join',
+        'barcodes', 'fix',
+        'filter_corrected', 'join_corrected',
+        'report']
     parser.add_argument("cmd", choices=cmds)
+    parser.add_argument("-d", "--dry-run", action="store_true")
+    _help = "Whether to only run samples marked with '1' in toggle column."
+    parser.add_argument("-t", "--toggle", action="store_true", help=_help)
+    _help = "Samples to subset. Comma delimited."
+    parser.add_argument("-s", "--samples", help=_help, default="")
     parser.add_argument("annotation")
     args = parser.parse_args()
+    args.samples = args.samples.split(",") if args.samples != "" else []
+    print(args)
 
     df = pd.read_csv(args.annotation)
 
-    df = df.query("toggle == 1")
+    if args.toggle and "toggle" in df.columns:
+        df = df.query("toggle == 1")
+    if args.samples:
+        df = df.loc[df['sample_name'].isin(args.samples), :]
+
+    s = '\n\t - ' + '\n\t - '.join(df['sample_name'])
+    print(f"Samples to submit:{s}")
+
+    if args.dry_run:
+        print("Dry run, not submitting anything.")
+        return
 
     for i, sample in df.iterrows():
         print(f"Doing sample {sample['sample_name']}")
@@ -29,8 +56,8 @@ def main():
         cmd += f"VARIABLES={sample['variables']} "
         cmd += f"SPECIES_MIXING={int(sample['species_mixing'])}"
         if not pd.isnull(sample['expected_cell_number']):
-            cmd += f"EXPECTED_CELL_NUMBER={int(sample['expected_cell_number'])}"
-        print(cmd)
+            cmd += f" EXPECTED_CELL_NUMBER={int(sample['expected_cell_number'])}"
+        print(" \\\n".join(cmd.split(" ")) + "\n")
         subprocess.Popen(cmd.split(" "))
 
 

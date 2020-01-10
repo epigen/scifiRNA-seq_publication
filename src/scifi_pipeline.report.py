@@ -126,6 +126,10 @@ def parse_args():
     #     "/scratch/lab_bock/shared/projects/sci-rna/data/PD190_sixlines/PD190_sixlines.metrics.csv.gz",
     #     "results/PD190_sixlines.",
     #     "--plotting-attributes", "plate_well"])
+    # args = parser.parse_args([
+    #     "/scratch/lab_bock/shared/projects/sci-rna/data/PD193_fivelines_383k/PD193_fivelines_383k.metrics.csv.gz",
+    #     "results/PD193_fivelines_383k.",
+    #     "--plotting-attributes", "plate_well,cell_line"])
     args = parser.parse_args()
 
     if args.plotting_attributes is None:
@@ -183,7 +187,8 @@ def main():
 
         cells_per_droplet = (
             metrics
-            .tail(args.expected_cell_number)
+            # .tail(int(args.expected_cell_number / 2))
+            .query("umi > 100")
             .groupby(args.droplet_column)
             [args.well_column].nunique()
             .sort_values())
@@ -192,10 +197,13 @@ def main():
 
         # Yield as a function of number of cells per droplet
         m = (
-            metrics.tail(args.expected_cell_number)
+            metrics
+            # .tail(int(args.expected_cell_number / 2))
+            .query("umi > 100")
             .set_index("r2")
             .join(cells_per_droplet)
             .query("cells_per_droplet < 25"))
+        m.to_csv(args.output_prefix + 'cells_per_droplet_stats.csv')
 
         attrs = [
             ('read', True),
@@ -208,7 +216,16 @@ def main():
             if log:
                 axis[i].set_yscale("log")
         fig.savefig(
-            args.output_prefix + f"cells_per_droplet.packaging_vs_yield.svg",
+            args.output_prefix + f"cells_per_droplet.packaging_vs_yield.violinplot.svg",
+            dpi=300, bbox_inches="tight")
+
+        fig, axis = plt.subplots(len(attrs), 1, figsize=(9, 3 * len(attrs)))
+        for i, (attr, log) in enumerate(attrs):
+            sns.boxplot(m['cells_per_droplet'], m[attr], fliersize=0, ax=axis[i])
+            if log:
+                axis[i].set_yscale("log")
+        fig.savefig(
+            args.output_prefix + f"cells_per_droplet.packaging_vs_yield.boxplot.svg",
             dpi=300, bbox_inches="tight")
 
         if args.species_mixture:

@@ -47,10 +47,11 @@ def main():
 
         for (sample_name, sample), annot2 in zip(run_config.items(), annotations):
             # Remove the multiplexing barcode from the name
+            additional = list(sample['attributes'].keys()) if sample['attributes'] else []
             attrs = pd.Series(
-                ['combinatorial_barcode'] + [sample['well_col'][0]] + list(sample['attributes'].keys()))
+                ['combinatorial_barcode'] + [sample['well_col'][0]] + additional)
             pretty_attrs = pd.Series(
-                ['combinatorial_barcode'] + [sample['well_col'][1]] + list(sample['attributes'].keys())).str.lower()
+                ['combinatorial_barcode'] + [sample['well_col'][1]] + additional).str.lower()
 
             c = annot2.drop(["multiplexing_number", "multiplexing_barcode"], axis=1)
             c['sample_name'] = c['sample_name'].str.replace(r"_\d\d$", "")
@@ -59,7 +60,7 @@ def main():
             date = "2019-10-31"
             prefix = os.path.join("metadata", f"sciRNA-seq.{sample_name}.oligos_{date}")
             c.to_csv(prefix + ".csv")
-            if sample['attributes'].values():
+            if sample['attributes']:
                 plot_plate(c, attrs=sample['attributes'].values(), output_prefix=prefix)
 
 
@@ -84,8 +85,9 @@ def annotate(sample_name, sample):
         + "_"
         + d["multiplexing_number"]
     )
-    for k, v in sample['attributes'].items():
-        annot[v] = d[k]
+    if sample['attributes']:
+        for k, v in sample['attributes'].items():
+            annot[v] = d[k]
     return annot
 
 

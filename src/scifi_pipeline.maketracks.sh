@@ -133,6 +133,16 @@ echo 'samtools index ${SAMPLE_DIR}/${SAMPLE_NAME}.ALL.STAR.Aligned.out.exon.bam.
 echo 'rm ${SAMPLE_DIR}/${SAMPLE_NAME}.ALL.STAR.Aligned.out.bam.featureCounts.header' >> $JOB
 echo 'rm ${SAMPLE_DIR}/${SAMPLE_NAME}.ALL.STAR.Aligned.out.exon.bam.featureCounts.header' >> $JOB
 
+# make bigWig files
+echo 'bamCoverage --bam ${SAMPLE_DIR}/${SAMPLE_NAME}.ALL.STAR.Aligned.out.bam.featureCounts.sorted.bam \' >> $JOB
+echo ' -o ${SAMPLE_DIR}/${SAMPLE_NAME}.ALL.STAR.Aligned.out.bam.featureCounts.sorted.bigWig \' >> $JOB
+echo ' -p max --binSize 10  --normalizeUsing RPGC \' >> $JOB
+echo ' --effectiveGenomeSize 6100000000 --extendReads 175' >> $JOB
+
+echo 'bamCoverage --bam ${SAMPLE_DIR}/${SAMPLE_NAME}.ALL.STAR.Aligned.out.exon.bam.featureCounts.sorted.bam \' >> $JOB
+echo ' -o ${SAMPLE_DIR}/${SAMPLE_NAME}.ALL.STAR.Aligned.out.exon.bam.featureCounts.sorted.bigWig \' >> $JOB
+echo ' -p max --binSize 10  --normalizeUsing RPGC \' >> $JOB
+echo ' --effectiveGenomeSize 6100000000 --extendReads 175' >> $JOB
 
 echo '' >> $JOB
 echo 'date' >> $JOB

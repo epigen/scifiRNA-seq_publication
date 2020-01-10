@@ -19,6 +19,10 @@ case $i in
     BARCODE_ANNOTATION="${i#*=}"
     shift # past argument=value
     ;;
+    -a=*|--pbs-sequence=*)
+    PBS_SEQUENCE="${i#*=}"
+    shift # past argument=value
+    ;;
     --output-dir=*)
     ROOT_OUTPUT_DIR="${i#*=}"
     shift # past argument=value
@@ -72,6 +76,7 @@ JOB=${SAMPLE_DIR}/${JOB_NAME}.sh
 LOG=${SAMPLE_DIR}/${JOB_NAME}.log
 
 OUTPUT_BAM=${SAMPLE_DIR}/${SAMPLE_NAME}.${LANE}.trimmed.bam
+TRIMMER=`pwd`/src/scifi_pipeline.trim_grnas.py
 
 echo '#!/bin/env bash' > $JOB
 
@@ -79,7 +84,8 @@ echo "date" >> $JOB
 
 echo "" >> $JOB
 echo "python3 -u \
-~/trim_grnas.py \
+$TRIMMER \
+--sequence $PBS_SEQUENCE \
 $INPUT_BAM \
 $OUTPUT_BAM" >> $JOB
 
