@@ -16,7 +16,7 @@ import scipy
 import seaborn as sns
 
 
-def parse_args():
+def parse_args(cli=None):
     parser = ArgumentParser()
     parser.add_argument(
         dest="input_files", nargs="+",
@@ -37,11 +37,15 @@ def parse_args():
     root = os.path.expanduser("~/projects/sci-rna")
     parser.add_argument(
         "--r1-annot", dest="r1_annotation_file",
-        help="CSV file with annotations of r1 barcodes. ", required=True)
+        help="CSV file with annotations of r1 barcodes.")
     parser.add_argument(
         "--r1-attributes", dest="r1_attributes", type=str,
         help="Which r1 attributes to annotate cells with. A comma-separated list.")
     default = os.path.join(root, "metadata", "737K-cratac-v1.reverse_complement.csv")
+    parser.add_argument(
+        "--r1-barcode-as-r1-tag", dest="r1_barcode_as_r1_tag", action="store_true",
+        help=("Whether the round1 barcode has been encoded as the first "
+              "13 bp of the 'BC' tag of the input BAM files or as a 'r1' tag."))
     parser.add_argument(
         "--r2-barcodes", dest="r2_barcodes", default=default,
         help="Whilelist file with r2 barcodes."
@@ -97,10 +101,9 @@ def parse_args():
         "--correct-r2-barcode-file", dest="correct_r2_barcode_file",
         help="File containing mapping between existing barcodes and correct barcodes."
     )
-    args = parser.parse_args()
 
     # # Example run:
-    # args = parser.parse_args([
+    # cli = [
     #     "--sample-name", "SCI023_Tcell_D77_A01",
     #     "--r1-attributes", "plate", "plate_well", "donor_id", "sex",
     #     "--cell-barcodes", "r2",
@@ -109,10 +112,27 @@ def parse_args():
     #     "--min-umi-output", "20",
     #     "--no-output-header",
     #     "/scratch/lab_bock/shared/projects/sci-rna/data/SCI024_Tcell_s/SCI023_Tcell_D77_A01/SCI023_Tcell_D77_A01.*.STAR.Aligned.out.bam.featureCounts.bam",
-    #     "/scratch/lab_bock/shared/projects/sci-rna/data/SCI024_Tcell_s/SCI023_Tcell_D77_A01/SCI023_Tcell_D77_A01"])
+    #     "/scratch/lab_bock/shared/projects/sci-rna/data/SCI024_Tcell_s/SCI023_Tcell_D77_A01/SCI023_Tcell_D77_A01"]
 
-    # Example run:
-    # args = parser.parse_args([
+    # cli = [
+    #     "--sample-name", "PD193_humanmouse_765k_A01",
+    #     "--r1-annot", "metadata/sciRNA-seq.PD193_humanmouse_765k.oligos_2019-09-20.csv",
+    #     "--r1-attributes", "plate_well",
+    #     "--cell-barcodes", "r2",
+    #     "--species-mixture",
+    #     "--only-summary",
+    #     "--no-save-intermediate",
+    #     "--min-umi-output", "3",
+    #     "--expected-cell-number", "250326",
+    #     "--no-output-header",
+    #     "--save-gene-expression",
+    #     "--correct-r1-barcodes",
+    #     "--correct-r2-barcodes",
+    #     "--correct-r2-barcode-file", "/scratch/lab_bock/shared/projects/sci-rna/data/PD193_humanmouse_765k/PD193_humanmouse_765k.fixed_barcodes.mapping.tsv",
+    #     "/scratch/lab_bock/shared/projects/sci-rna/data/PD193_humanmouse_765k/PD193_humanmouse_765k_A01/PD193_humanmouse_765k_A01.ALL.STAR.Aligned.out.bam.featureCounts.bam",
+    #     "/scratch/lab_bock/shared/projects/sci-rna/data/PD193_humanmouse_765k/PD193_humanmouse_765k_A01/PD193_humanmouse_765k_A01"]
+
+    # cli = [
     #     "--sample-name", "PD190_humanmouse",
     #     "--r1-annot", "metadata/sciRNA-seq.PD190_sixlines.oligos_2019-09-05.csv",
     #     "--r1-attributes", "plate_well",
@@ -122,9 +142,9 @@ def parse_args():
     #     "--min-umi-output", "20",
     #     "--no-output-header",
     #     "/scratch/lab_bock/shared/projects/sci-rna/data/PD190_humanmouse/PD190_humanmouse_*/*.STAR.Aligned.out.bam.featureCounts.bam",
-    #     "/scratch/lab_bock/shared/projects/sci-rna/data/PD190_humanmouse/PD190_humanmouse"])
+    #     "/scratch/lab_bock/shared/projects/sci-rna/data/PD190_humanmouse/PD190_humanmouse"]
 
-    # args = parser.parse_args([
+    # cli = [
     #     "--r1-annot", "/home/arendeiro/sci-rna/metadata/sciRNA-seq.PD193_fivelines_383k.oligos_2019-09-20.csv",
     #     "--r1-attributes", "plate_well,cell_line",
     #     "--cell-barcodes", "r2",
@@ -137,8 +157,58 @@ def parse_args():
     #     "--correct-r1-barcodes",
     #     "--sample-name", "PD193_fivelines_383k_JurkatCas9TCRlib_A01",
     #     "/home/arendeiro/sci-rna/data/PD193_fivelines_383k/PD193_fivelines_383k_JurkatCas9TCRlib_A01/PD193_fivelines_383k_JurkatCas9TCRlib_A01.*.STAR.Aligned.out.bam.featureCounts.bam",
-    #     "/home/arendeiro/sci-rna/data/PD193_fivelines_383k/PD193_fivelines_383k_JurkatCas9TCRlib_A01/PD193_fivelines_383k_JurkatCas9TCRlib_A01"])
+    #     "/home/arendeiro/sci-rna/data/PD193_fivelines_383k/PD193_fivelines_383k_JurkatCas9TCRlib_A01/PD193_fivelines_383k_JurkatCas9TCRlib_A01"]
 
+    # cli = [
+    #     "--r1-annot", "/home/arendeiro/sci-rna/metadata/sciRNA-seq.PD195-1_Tcells_765k-sample1_P7.oligos_2019-10-15.csv",
+    #     "--r1-attributes", "donor_id,donor_sex,activation",
+    #     "--cell-barcodes", "r2",
+    #     "--only-summary",
+    #     "--no-save-intermediate",
+    #     "--min-umi-output", "3",
+    #     "--expected-cell-number", "250326",
+    #     "--no-output-header",
+    #     "--save-gene-expression",
+    #     "--correct-r1-barcodes",
+    #     "--correct-r2-barcodes",
+    #     "--correct-r2-barcode-file", "/scratch/lab_bock/shared/projects/sci-rna/data/PD195-1_Tcells_765k-sample1_P7/PD195-1_Tcells_765k-sample1_P7.fixed_barcodes.mapping.tsv",
+    #     "--sample-name", "PD195-1_Tcells_765k-sample1_P7_A01",
+    #     "/home/arendeiro/sci-rna/data/PD195-1_Tcells_765k-sample1_P7/PD195-1_Tcells_765k-sample1_P7_A01/PD195-1_Tcells_765k-sample1_P7_A01.*.STAR.Aligned.out.bam.featureCounts.bam",
+    #     "/home/arendeiro/sci-rna/data/PD195-1_Tcells_765k-sample1_P7/PD195-1_Tcells_765k-sample1_P7_A01/PD195-1_Tcells_765k-sample1_P7_A01"]
+
+    # # For whole experiment
+    # cli = [
+    #     "--sample-name", "PD193_humanmouse_765k",
+    #     "--r1-annot", "metadata/sciRNA-seq.PD193_humanmouse_765k.oligos_2019-09-20.csv",
+    #     "--r1-attributes", "plate_well",
+    #     "--cell-barcodes", "r2",
+    #     "--only-summary",
+    #     "--no-save-intermediate",
+    #     "--min-umi-output", "3",
+    #     "--expected-cell-number", "250326",
+    #     "--no-output-header",
+    #     "--save-gene-expression",
+    #     "--correct-r1-barcodes",
+    #     "--correct-r2-barcodes",
+    #     "--correct-r2-barcode-file", "/scratch/lab_bock/shared/projects/sci-rna/data/PD193_humanmouse_765k/PD193_humanmouse_765k.fixed_barcodes.mapping.tsv",
+    #     "/scratch/lab_bock/shared/projects/sci-rna/data/PD193_humanmouse_765k/PD193_humanmouse_765k_*/PD193_humanmouse_765k_*.ALL.STAR.Aligned.out.bam.featureCounts.bam",
+    #     "/scratch/lab_bock/shared/projects/sci-rna/data/PD193_humanmouse_765k/PD193_humanmouse_765k/PD193_humanmouse_765k"]
+
+    # For 10X experiments
+    # cli = [
+    #     "--r1-barcode-as-r1-tag",
+    #     "--r1-attributes", "plate_well",
+    #     "--cell-barcodes", "r1",
+    #     "--only-summary",
+    #     "--no-save-intermediate",
+    #     "--min-umi-output", "10",
+    #     "--expected-cell-number", "10000",
+    #     "--save-gene-expression",
+    #     "--species-mixture",
+    #     "--sample-name", "PD200_10xscRNA_cells",
+    #     "data/PD200_10xscRNA_cells/PD200_10xscRNA_cells.STAR.Aligned.out.bam.featureCounts.bam",
+    #     "data/PD200_10xscRNA_cells/PD200_10xscRNA_cells"]
+    args = parser.parse_args(cli)
     if args.sample_name is None:
         args.sample_name = args.output_prefix
     if args.r1_attributes is None:
@@ -163,25 +233,31 @@ def parse_args():
     return args
 
 
-def main():
+def main(cli=None):
     global args
     global attrs
 
-    args = parse_args()
+    args = parse_args(cli)
     print(f"# {time.asctime()} - CLI arguments:")
     print(args)
 
     # barcode annotations
-    annotation = pd.read_csv(args.r1_annotation_file)
-    r2_barcodes = pd.read_csv(args.r2_barcodes)
-    attrs = (
-        annotation
-        .query(f"sample_name == '{args.sample_name}'")
-        .set_index("combinatorial_barcode")[args.r1_attributes]
-        .squeeze(axis=0))
+    if "r1" in args.cell_barcodes and args.r1_annotation_file is not None:
+        annotation = pd.read_csv(args.r1_annotation_file)
+        attrs = (
+            annotation
+            .query(f"sample_name == '{args.sample_name}'")
+            .set_index("combinatorial_barcode")[args.r1_attributes]
+            .squeeze(axis=0))
+    if "r2" in args.cell_barcodes:
+        r2_barcodes = pd.read_csv(args.r2_barcodes)
 
     # read text files
-    df = parse_data(args.input_files, nrows=args.nrows)
+    df = parse_data(
+        args.input_files,
+        nrows=args.nrows,
+        cell_barcodes=args.cell_barcodes,
+        r1_barcode_from_i7=not args.r1_barcode_as_r1_tag)
     # print(f"# {time.asctime()} - Saving all reads to pickle.")
     # to_pickle(df, "df", array=False)
 
@@ -196,15 +272,14 @@ def main():
     if args.correct_r2_barcodes:
         print(f"# {time.asctime()} - Updating barcodes not matching reference with corrected ones.")
         mapping = pd.read_csv(args.correct_r2_barcode_file, header=None, sep="\t")
-        mapping = mapping.set_index(0).squeeze().to_dict()
-
-        # Fill nulls with same key
-        # mapping = {k: v if not pd.isnull(v) else k for k, v in mapping.items()}
-        to_match = {k: k for k in df['r2']}
+        mapping = mapping.dropna().set_index(0).squeeze().to_dict()
 
         # update
-        to_match.update(mapping)
-        df['r2'].update(pd.Series(to_match))
+        unmatch = ~df['r2'].isin(r2_barcodes[args.barcode_orientation])
+        df.loc[unmatch, 'r2'] = [
+            mapping[x]
+            if x in mapping else x
+            for x in df.loc[unmatch, 'r2']]
         args.output_suffix = "_corrected"
 
     nr = df.isnull().sum().sum()
@@ -225,7 +300,7 @@ def main():
 
     # Gather metrics per cell
     r1_annotation = None
-    if "r1" in args.cell_barcodes:
+    if "r1" in args.cell_barcodes and args.r1_annotation_file is not None:
         r1_annotation = annotation.set_index("combinatorial_barcode")[args.r1_attributes]
         r1_annotation.index.name = "r1"
     metrics = gather_stats_per_cell(
@@ -252,7 +327,7 @@ def main():
             args.output_prefix + "metrics" + args.output_suffix + ".csv.gz",
             float_format='%.3f', header=args.output_header))
 
-    if "r1" in args.cell_barcodes:
+    if "r1" in args.cell_barcodes and args.r1_annotation_file is not None:
         # # now the same only for exactly matching barcodes
         metrics_filtered = get_exact_matches(
             metrics,
@@ -306,7 +381,7 @@ def main():
             plot_well_stats(well_metrics_filtered, tail=None, suffix="exact_match")
 
 
-def parse_data(files, nrows=1e10):
+def parse_data(files, nrows=1e10, cell_barcodes=['r1', 'r2'], r1_barcode_from_i7=True):
     import pysam
 
     print(f"# {time.asctime()} - Parsing files.")
@@ -338,12 +413,16 @@ def parse_data(files, nrows=1e10):
                           f" gene assignemnt: {read.qname}. Skipping it.")
                     continue
 
+            cbs = list()
+            if "r1" in cell_barcodes:
+                cbs.append(read.get_tag("BC")[0:13] if r1_barcode_from_i7 else read.get_tag("r1"))
+            if "r2" in cell_barcodes:
+                cbs.append(read.get_tag("r2"))
             piece = [
-                # save only the read position
+                # save only the read flowcell position
                 read.qname.split("#")[0],
                 # ":".join(read.qname.split("#")[0].split(":")[1:]),
-                read.get_tag("BC")[0:13],
-                read.get_tag("r2"),
+            ] + cbs + [
                 read.get_tag("RX"),
                 gene[0],
                 read.pos]
@@ -351,7 +430,7 @@ def parse_data(files, nrows=1e10):
         print(f"# {time.asctime()} - Done with file {file}. {i} lines.")
 
     print(f"# {time.asctime()} - Concatenating parts.")
-    return pd.DataFrame(pieces, columns=['read', 'r1', 'r2', 'umi', 'gene', 'pos'])
+    return pd.DataFrame(pieces, columns=['read'] + cell_barcodes + ['umi', 'gene', 'pos'])
 
 
 def gather_stats_per_cell(
@@ -364,6 +443,9 @@ def gather_stats_per_cell(
     suffix="",
 ):
     print(f"# {time.asctime()} - Gathering metrics per cell.")
+
+    if r1_annotation is None:
+        r1_annotation = pd.Series(name=None)
 
     # performance metrics
     # # number of unique reads per cell
@@ -400,7 +482,7 @@ def gather_stats_per_cell(
             umi_counts
             .reset_index(level='pos', drop=True).reset_index()
             # Add required attributes
-            .assign(**dict(zip(attrs.index, attrs.values)))
+            .assign(**dict(zip(r1_annotation.index, r1_annotation.values)))
             .to_csv(
                 args.output_prefix + "expression" + suffix + ".csv.gz",
                 index=False, header=args.output_header)
@@ -425,6 +507,7 @@ def gather_stats_per_cell(
     # Species mixing
     if species_mixture:
         print(f"# {time.asctime()} - Gathering species-specific metrics per cell.")
+        # # per UMI
         umi_counts2 = umi_counts.reset_index()
         umi_counts2 = umi_counts2.assign(
             species=(
@@ -450,6 +533,34 @@ def gather_stats_per_cell(
         if save_intermediate:
             to_pickle(spc, "spc" + suffix)
 
+        # # per read
+        read_counts = df.groupby(args.cell_barcodes + ["gene"], sort=False)[
+            "read"
+        ].count().reset_index()
+        read_counts = read_counts.assign(
+            species=(
+                read_counts["gene"]
+                .str.startswith("ENSG")
+                .replace(True, "read_human")
+                .replace(False, "read_mouse")
+            )
+        )
+        species_counts_read = read_counts.groupby(args.cell_barcodes + ["species"])["read"].sum()
+
+        spc_read = species_counts_read.reset_index().pivot_table(
+            index=args.cell_barcodes, columns="species", values="read", fill_value=0
+        )
+        spc_read += 1
+        spc_read = spc_read.assign(read_total=spc_read.sum(1), read_max=spc_read.max(1))
+        spc_read = spc_read.assign(
+            read_ratio=spc_read["read_max"] / spc_read["read_total"], read_sp_ratio=spc_read["read_human"] / spc_read["read_total"]
+        ).sort_values("read_total")
+        spc_read = spc_read.assign(
+            read_doublet=(spc_read["read_ratio"] < doublet_threshold).astype(int).replace(0, -1)
+        )
+        if save_intermediate:
+            to_pickle(spc_read, "spc_read" + suffix)
+
     print(f"# {time.asctime()} - Joining all metrics.")
     # TODO: speed up by assigning to column using equallly sorted indexes
     metrics = (
@@ -460,14 +571,14 @@ def gather_stats_per_cell(
     )
 
     if species_mixture:
-        metrics = metrics.join(spc)
+        metrics = metrics.join(spc).join(spc_read)
 
     metrics = metrics.sort_values("umi")
 
     # Calculate unique fraction
     metrics.loc[:, "unique_fraction"] = metrics["unique_umis"] / metrics["umi"]
 
-    if r1_annotation is not None:
+    if not r1_annotation.empty:
         print(f"# {time.asctime()} - Adding well annotation to metrics.")
         r1_annotation.index.name = "r1"
         metrics = metrics.join(r1_annotation)
@@ -478,6 +589,7 @@ def gather_stats_per_cell(
         return metrics
 
     # Assess species bias
+    # # per UMI
     r = dict()
     for f in [0.1, 0.2, 0.25, 0.5, 0.75] + list(range(1, 1000, 10)) + [1.5]:
         t = metrics.tail(int(args.expected_cell_number * f))
@@ -492,6 +604,24 @@ def gather_stats_per_cell(
     metrics.loc[:, "sp_ratio_norm"] = metrics["human_norm"] / metrics["total_norm"]
     metrics.loc[:, "doublet_norm"] = (
         (metrics.loc[:, "ratio_norm"] < doublet_threshold).astype(int).replace(0, -1)
+    )
+
+    # Assess species bias
+    # # per read
+    r = dict()
+    for f in [0.1, 0.2, 0.25, 0.5, 0.75] + list(range(1, 1000, 10)) + [1.5]:
+        t = metrics.tail(int(args.expected_cell_number * f))
+        r[args.expected_cell_number * f] = t["read_mouse"].mean() / t["read_human"].mean()
+    r = pd.Series(r).sort_index()
+
+    # Add normalized metrics to stats
+    metrics.loc[:, "read_human_norm"] = metrics["read_human"] * r[int(args.expected_cell_number)]
+    metrics.loc[:, "read_total_norm"] = metrics[["read_mouse", "read_human_norm"]].sum(1)
+    metrics.loc[:, "read_max_norm"] = metrics[["read_mouse", "read_human_norm"]].max(1)
+    metrics.loc[:, "read_ratio_norm"] = metrics["read_max_norm"] / metrics["read_total_norm"]
+    metrics.loc[:, "read_sp_ratio_norm"] = metrics["read_human_norm"] / metrics["read_total_norm"]
+    metrics.loc[:, "read_doublet_norm"] = (
+        (metrics.loc[:, "read_ratio_norm"] < doublet_threshold).astype(int).replace(0, -1)
     )
 
     if save_intermediate:
@@ -663,6 +793,7 @@ def gather_stats_per_cell_as_droplet(
     ].nunique()
     if save_intermediate:
         to_pickle(umi_counts, "umi_counts" + suffix)
+
     umis_per_cell = umi_counts.groupby(cell_barcodes, sort=False).sum().sort_values()
     if save_intermediate:
         to_pickle(umis_per_cell, "umis_per_cell" + suffix)
