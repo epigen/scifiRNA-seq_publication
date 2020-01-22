@@ -4,3 +4,9 @@ pandas>=0.22.0
 pysam>=0.13
 matplotlib>=2.1.1
 seaborn>=0.8.1
+joblib
+anndata
+# below only required for report step
+ngs-toolkit==0.19.3
+scanpy
+biopython
