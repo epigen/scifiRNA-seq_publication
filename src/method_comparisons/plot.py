@@ -40,7 +40,9 @@ for EXON in [True, False]:
         annot['sample_name'].str.contains("PD200") |
         annot['sample_name'].str.contains("plex") |
         annot['sample_name'].str.startswith("scirna") |
-        annot['sample_name'].str.contains("splitseq_3000")]
+        annot['sample_name'].str.contains("splitseq")]
+
+
     # Collect metrics
     metrics_a = dict()
     metrics_f = dict()
@@ -78,6 +80,10 @@ for EXON in [True, False]:
     # For direct performance comparisons I select only mouse cells because
     # the exact cell line was used
     metrics_fm = metrics_f.query("sp_ratio < 0.5")
+    sns.set_palette(
+        sns.color_palette(
+            "Paired",
+            metrics_fm[["sample", "material_type"]].drop_duplicates().shape[0]))
 
     # metrics.to_csv("results/PD200.metrics.join_experiments.csv.gz")
 
@@ -218,7 +224,7 @@ for EXON in [True, False]:
             ax[6].set_xlabel("UMIs")
             ax[6].set_ylabel("Unique fraction")
 
-    axis[1, 3].legend(bbox_to_anchor=(0.5, -0.15), ncol=3, loc="lower center")
+    axis[1, 3].legend(bbox_to_anchor=(0.5, -0.15), ncol=3, loc="upper center")
     axis[0, 0].set_ylabel(
         "All barcodes\n" + axis[0, 0].get_ylabel(), ha="center", va="bottom"
     )
