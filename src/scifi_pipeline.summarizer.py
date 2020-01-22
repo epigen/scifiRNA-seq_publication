@@ -44,8 +44,8 @@ def parse_args(cli=None):
     default = os.path.join(root, "metadata", "737K-cratac-v1.reverse_complement.csv")
     parser.add_argument(
         "--r1-barcode-as-r1-tag", dest="r1_barcode_as_r1_tag", action="store_true",
-        help=("Whether the round1 barcode has been encoded as the first "
-              "13 bp of the 'BC' tag of the input BAM files or as a 'r1' tag."))
+        help=("Whether the round1 barcode has been encoded in the 'r1' tag. If not set will use  first "
+              "13 bp of the 'BC' tag of the input BAM files."))
     parser.add_argument(
         "--r2-barcodes", dest="r2_barcodes", default=default,
         help="Whilelist file with r2 barcodes."
@@ -208,6 +208,22 @@ def parse_args(cli=None):
     #     "--sample-name", "PD200_10xscRNA_cells",
     #     "data/PD200_10xscRNA_cells/PD200_10xscRNA_cells.STAR.Aligned.out.bam.featureCounts.bam",
     #     "data/PD200_10xscRNA_cells/PD200_10xscRNA_cells"]
+
+    # # For Split-seq
+    # cli = [
+    #     "--r1-barcode-as-r1-tag",
+    #     "--r1-attributes", "plate_well",
+    #     "--cell-barcodes", "r1", "r2", "r3",
+    #     "--only-summary",
+    #     "--no-save-intermediate",
+    #     "--min-umi-output", "3",
+    #     "--expected-cell-number", "10000",
+    #     "--save-gene-expression",
+    #     "--species-mixture",
+    #     "--sample-name", "splitseq_300",
+    #     "data/splitseq_300/splitseq_300.STAR.Aligned.out.bam.featureCounts.bam",
+    #     "data/splitseq_300/splitseq_300"]
+
     args = parser.parse_args(cli)
     if args.sample_name is None:
         args.sample_name = args.output_prefix
@@ -241,17 +257,6 @@ def main(cli=None):
     print(f"# {time.asctime()} - CLI arguments:")
     print(args)
 
-    # barcode annotations
-    if "r1" in args.cell_barcodes and args.r1_annotation_file is not None:
-        annotation = pd.read_csv(args.r1_annotation_file)
-        attrs = (
-            annotation
-            .query(f"sample_name == '{args.sample_name}'")
-            .set_index("combinatorial_barcode")[args.r1_attributes]
-            .squeeze(axis=0))
-    if "r2" in args.cell_barcodes:
-        r2_barcodes = pd.read_csv(args.r2_barcodes)
-
     # read text files
     df = parse_data(
         args.input_files,
@@ -261,11 +266,25 @@ def main(cli=None):
     # print(f"# {time.asctime()} - Saving all reads to pickle.")
     # to_pickle(df, "df", array=False)
 
-    # correct r1 barcodes
-    if args.correct_r1_barcodes:
+    # barcode annotations
+    r1_annotation = None
+    if args.r1_annotation_file is not None:
+        annotation = pd.read_csv(args.r1_annotation_file)
+        attrs = (
+            annotation
+            .query(f"sample_name == '{args.sample_name}'")
+            .set_index("combinatorial_barcode")[args.r1_attributes]
+            .squeeze(axis=0))
         print(f"# {time.asctime()} - Updating r1 barcodes to the sequence of the well.")
         df['r1'] = attrs.name
         # df['r1'] = df['r1'].value_counts().idxmax()
+
+        if "r1" in args.cell_barcodes:
+            r1_annotation = annotation.set_index("combinatorial_barcode")[args.r1_attributes]
+            r1_annotation.index.name = "r1"
+
+    if "r2" in args.cell_barcodes:
+        r2_barcodes = pd.read_csv(args.r2_barcodes)
 
     # correct r2 barcodes
     args.output_suffix = ""
@@ -299,10 +318,6 @@ def main(cli=None):
             os.path.join(args.output_prefix + "bulk_expression_profile.csv")))
 
     # Gather metrics per cell
-    r1_annotation = None
-    if "r1" in args.cell_barcodes and args.r1_annotation_file is not None:
-        r1_annotation = annotation.set_index("combinatorial_barcode")[args.r1_attributes]
-        r1_annotation.index.name = "r1"
     metrics = gather_stats_per_cell(
         df,
         r1_annotation=r1_annotation,
@@ -310,7 +325,7 @@ def main(cli=None):
         save_intermediate=args.save_intermediate,
         suffix=args.output_suffix)
 
-    if "r1" not in args.cell_barcodes:
+    if args.r1_annotation_file is not None:
         # Add required attributes
         metrics = metrics.assign(**dict(zip(attrs.index, attrs.values)))
 
@@ -418,6 +433,8 @@ def parse_data(files, nrows=1e10, cell_barcodes=['r1', 'r2'], r1_barcode_from_i7
                 cbs.append(read.get_tag("BC")[0:13] if r1_barcode_from_i7 else read.get_tag("r1"))
             if "r2" in cell_barcodes:
                 cbs.append(read.get_tag("r2"))
+            if "r3" in cell_barcodes:
+                cbs.append(read.get_tag("r3"))
             piece = [
                 # save only the read flowcell position
                 read.qname.split("#")[0],

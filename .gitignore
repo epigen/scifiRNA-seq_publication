@@ -1,0 +1,8 @@
+results/*
+src/old/*
+notebooks/*
+*.svg
+*.png
+*.fastq.gz
+*.bam
+*.html
