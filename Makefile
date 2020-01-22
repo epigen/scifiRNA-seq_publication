@@ -2,8 +2,8 @@
 
 # These parameters can be overwritten
 STAR_EXE := /home/arendeiro/workspace/STAR-2.7.0e/bin/Linux_x86_64_static/STAR
-STAR_DIR := /home/arendeiro/resources/genomes/hg38/indexed_STAR-2.7.0e/
-GTF_FILE := /home/arendeiro/resources/genomes/hg38/10X/refdata-cellranger-GRCh38-1.2.0/genes/genes.gtf
+STAR_DIR := /data/groups/lab_bock/shared/resources/genomes/hg38/indexed_STAR-2.7.0e/
+GTF_FILE := /data/groups/lab_bock/shared/resources/genomes/hg38/10X/refdata-cellranger-GRCh38-1.2.0/genes/genes.gtf
 
 parse:
 	@[ "${RUN_NAME}" ] || ( echo "'RUN_NAME' is not set"; exit 1 )
@@ -20,8 +20,8 @@ SPECIES_MIXING ?= 1
 SPECIES_MIX_FLAG := 
 ifeq ($(SPECIES_MIXING), 1)
 	SPECIES_MIX_FLAG := --species-mixture
-	STAR_DIR := /home/arendeiro/resources/genomes/hg38_mm10_transgenes_Tcrlibrary/indexed_STAR_2.7.0e/
-	GTF_FILE := /home/arendeiro/resources/genomes/hg38_mm10_transgenes_Tcrlibrary/Homo_sapiens-Mus_musculus.Ensembl92.dna.primary_assembly.Tcr_lambda_spiked.gtf
+	STAR_DIR := /data/groups/lab_bock/shared/resources/genomes/hg38_mm10_transgenes_Tcrlibrary/indexed_STAR_2.7.0e/
+	GTF_FILE := /data/groups/lab_bock/shared/resources/genomes/hg38_mm10_transgenes_Tcrlibrary/Homo_sapiens-Mus_musculus.Ensembl92.dna.primary_assembly.Tcr_lambda_spiked.gtf
 endif
 CHUNKS ?= 1000
 CHUNK_BATCH_SIZE ?= 25
