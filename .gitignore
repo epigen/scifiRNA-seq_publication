@@ -6,3 +6,5 @@ notebooks/*
 *.fastq.gz
 *.bam
 *.html
+SCIFI_ENV
+__pycache__

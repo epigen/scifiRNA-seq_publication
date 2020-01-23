@@ -1,9 +1,10 @@
 .DEFAULT_GOAL := all
 
 # These parameters can be overwritten
-STAR_EXE := /home/arendeiro/workspace/STAR-2.7.0e/bin/Linux_x86_64_static/STAR
-STAR_DIR := /home/arendeiro/resources/genomes/hg38/indexed_STAR-2.7.0e/
-GTF_FILE := /home/arendeiro/resources/genomes/hg38/10X/refdata-cellranger-GRCh38-1.2.0/genes/genes.gtf
+STAR_EXE := /home/dbarreca/bin/STAR
+STAR_DIR := /data/groups/lab_bock/shared/resources/genomes/hg38/indexed_STAR-2.7.0e/
+GTF_FILE := /data/groups/lab_bock/shared/resources/genomes/hg38/refdata-cellranger-GRCh38-1.2.0/genes/genes.gtf
+R2_BARCODES := $(shell pwd)/metadata/737K-cratac-v1.reverse_complement.csv
 
 parse:
 	@[ "${RUN_NAME}" ] || ( echo "'RUN_NAME' is not set"; exit 1 )
@@ -11,17 +12,18 @@ parse:
 	@[ "${N_LANES}" ] || ( echo "'N_LANES' is not set"; exit 1 )
 	@[ "${N_BARCODES}" ] || ( echo "'N_BARCODES' is not set"; exit 1 )
 ANNOTATION ?= "/scratch/lab_bock/shared/projects/sci-rna/metadata/sciRNA-seq.PD190_humanmouse.oligos_2019-09-05.csv"
-ROOT_OUTPUT_DIR ?= /scratch/lab_bock/shared/projects/sci-rna/data/$(RUN_NAME)
+#ROOT_OUTPUT_DIR ?= /scratch/lab_bock/shared/projects/sci-rna/data/$(RUN_NAME)
+ROOT_OUTPUT_DIR ?= /scratch/users/dbarreca/private/projects/SCIFI/TEST/$(RUN_NAME)
 EXPECTED_CELL_NUMBER ?= 200000
 MIN_UMI_OUTPUT ?= 3
 VARIABLES ?= "plate_well"
 ARRAY_SIZE ?= 24
 SPECIES_MIXING ?= 1
-SPECIES_MIX_FLAG := 
+SPECIES_MIX_FLAG :=
 ifeq ($(SPECIES_MIXING), 1)
 	SPECIES_MIX_FLAG := --species-mixture
-	STAR_DIR := /home/arendeiro/resources/genomes/hg38_mm10_transgenes_Tcrlibrary/indexed_STAR_2.7.0e/
-	GTF_FILE := /home/arendeiro/resources/genomes/hg38_mm10_transgenes_Tcrlibrary/Homo_sapiens-Mus_musculus.Ensembl92.dna.primary_assembly.Tcr_lambda_spiked.gtf
+	STAR_DIR := /data/groups/lab_bock/shared/resources/genomes/hg38_mm10_transgenes_Tcrlibrary/indexed_STAR_2.7.0e/
+	GTF_FILE := /data/groups/lab_bock/shared/resources/genomes/hg38_mm10_transgenes_Tcrlibrary/Homo_sapiens-Mus_musculus.Ensembl92.dna.primary_assembly.Tcr_lambda_spiked.gtf
 endif
 CHUNKS ?= 1000
 CHUNK_BATCH_SIZE ?= 25
@@ -90,7 +92,8 @@ filter: parse
 	--mem=8000 \
 	--queue=shortq \
 	--time=01:00:00 \
-	--array-size=$(ARRAY_SIZE)
+	--array-size=$(ARRAY_SIZE) \
+	--r2-barcodes=${R2_BARCODES}
 	$(info "scifi_pipeline: done")
 
 join: parse
@@ -180,23 +183,22 @@ report: parse
 	--plotting-attributes $(VARIABLES) $(SPECIES_MIX_FLAG)"
 	$(info "scifi_pipeline: done")
 
-	sbatch -J scifi_pipeline.report_corrected.$(RUN_NAME) \
-	-o $(ROOT_OUTPUT_DIR)/scifi_pipeline.report_corrected.log \
-	-p longq --mem 120000 --cpus 4 --time 3-00:00:00 \
-	--wrap "python3 -u src/scifi_pipeline.report.py \
-	$(ROOT_OUTPUT_DIR)/$(RUN_NAME).metrics_corrected.csv.gz \
-	results/$(RUN_NAME)/$(RUN_NAME).corrected. \
-	--plotting-attributes $(VARIABLES) $(SPECIES_MIX_FLAG)"
+	#sbatch -J scifi_pipeline.report_corrected.$(RUN_NAME) \
+	#-o $(ROOT_OUTPUT_DIR)/scifi_pipeline.report_corrected.log \
+	#-p longq --mem 120000 --cpus 4 --time 3-00:00:00 \
+	#--wrap "python3 -u src/scifi_pipeline.report.py \
+	#$(ROOT_OUTPUT_DIR)/$(RUN_NAME).metrics_corrected.csv.gz \
+	#results/$(RUN_NAME)/$(RUN_NAME).corrected. \
+	#--plotting-attributes $(VARIABLES) $(SPECIES_MIX_FLAG)"
 
-	sbatch -J scifi_pipeline.report_corrected-exon.$(RUN_NAME) \
-	-o $(ROOT_OUTPUT_DIR)/scifi_pipeline.report_corrected-exon.log \
-	-p longq --mem 120000 --cpus 4 --time 3-00:00:00 \
-	--wrap "python3 -u src/scifi_pipeline.report.py \
-	$(ROOT_OUTPUT_DIR)/$(RUN_NAME).exon.metrics_corrected.csv.gz \
-	results/$(RUN_NAME)/$(RUN_NAME).exon.corrected. \
-	--plotting-attributes $(VARIABLES) $(SPECIES_MIX_FLAG)"
+	#sbatch -J scifi_pipeline.report_corrected-exon.$(RUN_NAME) \
+	#-o $(ROOT_OUTPUT_DIR)/scifi_pipeline.report_corrected-exon.log \
+	#-p longq --mem 120000 --cpus 4 --time 3-00:00:00 \
+	#--wrap "python3 -u src/scifi_pipeline.report.py \
+	#$(ROOT_OUTPUT_DIR)/$(RUN_NAME).exon.metrics_corrected.csv.gz \
+	#results/$(RUN_NAME)/$(RUN_NAME).exon.corrected. \
+	#--plotting-attributes $(VARIABLES) $(SPECIES_MIX_FLAG)"
 	$(info "scifi_pipeline: done")
-
 
 matches:
 	$(info "scifi: barcode_match")

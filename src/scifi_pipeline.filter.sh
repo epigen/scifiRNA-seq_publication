@@ -63,6 +63,10 @@ case $i in
     ARRAY_SIZE="${i#*=}"
     shift # past argument=value
     ;;
+    --r2-barcodes=*)
+    R2_BARCODES="${i#*=}"
+    shift # past argument=value
+    ;;
     *)
           # unknown option
     ;;
@@ -77,7 +81,7 @@ echo "ROOT DIRECTORY       = ${ROOT_OUTPUT_DIR}"
 echo "SLURM PARAMETERS     = $CPUS, $MEM, $QUEUE, $TIME, $ARRAY_SIZE"
 echo "CORRECT_BARCODES     = $CORRECT_BARCODES"
 echo "CORRECT_BARCODE_FILE = $CORRECT_BARCODE_FILE"
-
+echo "R2_BARCODES          = $R2_BARCODES"
 # Start
 
 # # Make path absolute
@@ -86,7 +90,6 @@ if [[ ! "$BARCODE_ANNOTATION" = /* ]]; then
 fi
 
 SUMMARIZER=`pwd`/src/scifi_pipeline.summarizer.py
-
 
 ADDITIONAL_ARGS=""
 JOB_DESCR="filter"
@@ -153,6 +156,7 @@ echo "#ROOT DIRECTORY   = ${ROOT_OUTPUT_DIR}" >> $JOB
 echo "#STAR EXECUTABLE  = ${STAR_EXE}" >> $JOB
 echo "#STAR DIRECTORY   = ${STAR_DIR}" >> $JOB
 echo "#GTF FILE         = ${GTF_FILE}" >> $JOB
+echo "#R2_BARCODES      = ${R2_BARCODES}" >> $JOB
 echo "#SLURM PARAMETERS = $CPUS, $MEM, $QUEUE, $TIME, $ARRAY_SIZE" >> $JOB
 echo '' >> $JOB
 echo 'echo SLURM_ARRAY_TASK_ID = $SLURM_ARRAY_TASK_ID' >> $JOB
@@ -172,6 +176,7 @@ echo "python3 -u $SUMMARIZER \\
 --r1-annot $BARCODE_ANNOTATION \\
 --r1-attributes $VARIABLES \\
 --cell-barcodes r2 \\
+--r2-barcodes $R2_BARCODES \\
 --only-summary \\
 --no-save-intermediate \\
 --min-umi-output $MIN_UMI_OUTPUT \\
@@ -191,6 +196,7 @@ echo "python3 -u $SUMMARIZER \\
 --r1-annot $BARCODE_ANNOTATION \\
 --r1-attributes $VARIABLES \\
 --cell-barcodes r2 \\
+--r2-barcodes $R2_BARCODES \\
 --only-summary \\
 --no-save-intermediate \\
 --min-umi-output $MIN_UMI_OUTPUT \\
