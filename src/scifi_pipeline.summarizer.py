@@ -279,6 +279,8 @@ def main(cli=None):
         if "r1" in args.cell_barcodes:
             r1_annotation = annotation.set_index("combinatorial_barcode")[args.r1_attributes]
             r1_annotation.index.name = "r1"
+        else:
+            r1_annotation = attrs
 
     if "r2" in args.cell_barcodes:
         r2_barcodes = pd.read_csv(args.r2_barcodes)
@@ -455,7 +457,7 @@ def gather_stats_per_cell(
     save_intermediate=True,
     species_mixture=True,
     norm_species=True,
-    r1_annotation=None,
+    r1_annotation: pd.Series = None,
     suffix="",
 ):
     print(f"# {time.asctime()} - Gathering metrics per cell.")
