@@ -2,8 +2,6 @@
 
 # These parameters can be overwritten
 STAR_EXE := /home/dbarreca/bin/STAR
-STAR_DIR := /data/groups/lab_bock/shared/resources/genomes/hg38/indexed_STAR-2.7.0e/
-GTF_FILE := /data/groups/lab_bock/shared/resources/genomes/hg38/refdata-cellranger-GRCh38-1.2.0/genes/genes.gtf
 R2_BARCODES := $(shell pwd)/metadata/737K-cratac-v1.reverse_complement.csv
 
 parse:
@@ -13,11 +11,20 @@ parse:
 	@[ "${N_BARCODES}" ] || ( echo "'N_BARCODES' is not set"; exit 1 )
 ANNOTATION ?= "/scratch/lab_bock/shared/projects/sci-rna/metadata/sciRNA-seq.PD190_humanmouse.oligos_2019-09-05.csv"
 #ROOT_OUTPUT_DIR ?= /scratch/lab_bock/shared/projects/sci-rna/data/$(RUN_NAME)
-ROOT_OUTPUT_DIR ?= /scratch/users/dbarreca/private/projects/SCIFI/TEST/$(RUN_NAME)
+ROOT_OUTPUT_DIR ?= /scratch/users/dbarreca/private/projects/SCIFI/OUT/$(RUN_NAME)
 EXPECTED_CELL_NUMBER ?= 200000
 MIN_UMI_OUTPUT ?= 3
 VARIABLES ?= "plate_well"
 ARRAY_SIZE ?= 24
+
+STAR_DIR := /data/groups/lab_bock/shared/resources/genomes/hg38/indexed_STAR-2.7.0e/
+GTF_FILE := /data/groups/lab_bock/shared/resources/genomes/hg38/10X/refdata-cellranger-GRCh38-1.2.0/genes/genes.gtf
+
+IS_MOUSE ?= 0
+ifeq ($(IS_MOUSE), 1)
+	STAR_DIR=/home/dbarreca/resources/mm10_e99/indexed_STAR-2.7.0e/
+	GTF_FILE=/home/dbarreca/resources/mm10_e99/mm10_e99.gtf
+endif
 SPECIES_MIXING ?= 1
 SPECIES_MIX_FLAG :=
 ifeq ($(SPECIES_MIXING), 1)
@@ -25,6 +32,7 @@ ifeq ($(SPECIES_MIXING), 1)
 	STAR_DIR := /data/groups/lab_bock/shared/resources/genomes/hg38_mm10_transgenes_Tcrlibrary/indexed_STAR_2.7.0e/
 	GTF_FILE := /data/groups/lab_bock/shared/resources/genomes/hg38_mm10_transgenes_Tcrlibrary/Homo_sapiens-Mus_musculus.Ensembl92.dna.primary_assembly.Tcr_lambda_spiked.gtf
 endif
+
 CHUNKS ?= 1000
 CHUNK_BATCH_SIZE ?= 25
 GRNA_PBS_SEQUENCE ?= GTGGAAAGGACGAAACACCG

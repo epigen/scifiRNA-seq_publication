@@ -7,4 +7,5 @@ notebooks/*
 *.bam
 *.html
 SCIFI_ENV
+SCIFI_ENV_BIS
 __pycache__

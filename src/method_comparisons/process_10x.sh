@@ -4,23 +4,31 @@
 function join_by { local IFS="$1"; shift; echo "$*"; }
 
 
-RUNS=(PD200_10xscRNA_nuclei PD200_10xscRNA_cellsMeOH PD200_10xscRNA_cells)
+#RUNS=(PD2XX1_10xscRNA_Human_Tcells_2S3Qmixed_Stimulated PD2XX1_10xscRNA_Human_Tcells_2S3Qmixed_Unstimulated PD2XX1_10xscRNA_Human_PBMCs_2S3Qmixed)
+RUNS=(PD2XX1_10xscRNA_Mouse_LI)
 
 for RUN_NAME in ${RUNS[@]}; do
-FLOWCELL=BSF_0726_HHV5TDRXX
+FLOWCELL=BSF_0755_HNNCVDMXX
 N_LANES=2
 VARIABLES=plate_well
-ADDITIONAL_ARGS="--species-mixture"
+#ADDITIONAL_ARGS="--species-mixture"
 CELL_BARCODES=r1  # only round1 cell barcode has been tagged in the BAM file as "r1"
-ROOT_OUTPUT_DIR=data
-STAR_EXE=/home/arendeiro/workspace/STAR-2.7.0e/bin/Linux_x86_64_static/STAR
-STAR_DIR=/home/arendeiro/resources/genomes/hg38_mm10_transgenes_Tcrlibrary/indexed_STAR_2.7.0e/
-GTF_FILE=/home/arendeiro/resources/genomes/hg38_mm10_transgenes_Tcrlibrary/Homo_sapiens-Mus_musculus.Ensembl92.dna.primary_assembly.Tcr_lambda_spiked.gtf
-SUMMARIZER=`pwd`/src/scifi_pipeline.summarizer.py
+ROOT_OUTPUT_DIR=OUT
+STAR_EXE=/home/dbarreca/bin/STAR
+#Human
+#STAR_DIR=/data/groups/lab_bock/shared/resources/genomes/hg38/indexed_STAR-2.7.0e/
+#GTF_FILE=/data/groups/lab_bock/shared/resources/genomes/hg38/10X/refdata-cellranger-GRCh38-1.2.0/genes/genes.gtf
+#Mouse
+STAR_DIR=/home/dbarreca/resources/mm10_e99/indexed_STAR-2.7.0e/
+GTF_FILE=/home/dbarreca/resources/mm10_e99/mm10_e99.gtf
+#mix
+#STAR_DIR=/data/groups/lab_bock/shared/resources/genomes/hg38_mm10_transgenes_Tcrlibrary/indexed_STAR_2.7.0e/
+#GTF_FILE=/data/groups/lab_bock/shared/resources/genomes/hg38_mm10_transgenes_Tcrlibrary/Homo_sapiens-Mus_musculus.Ensembl92.dna.primary_assembly.Tcr_lambda_spiked.gtf
+SUMMARIZER=/scratch/users/dbarreca/private/projects/SCIFI/scifiRNA-seq_publication/src/scifi_pipeline.summarizer.py
 CPUS=4
-MEM=60000
-QUEUE=shortq
-TIME=08:00:00
+MEM=200G
+QUEUE=mediumq
+TIME=2-00:00:00
 
 BAMS=(
 /scratch/users/dbarreca/private/custom_demux/scRNA/${FLOWCELL}/${FLOWCELL}_1_samples_10x/${FLOWCELL}_1#${RUN_NAME}_01.bam

@@ -54,7 +54,8 @@ def main():
         cmd += f"N_BARCODES={int(sample['nbarcodes'])} "
         cmd += f"ANNOTATION={sample['annotation']} "
         cmd += f"VARIABLES={sample['variables']} "
-        cmd += f"SPECIES_MIXING={int(sample['species_mixing'])}"
+        cmd += f"SPECIES_MIXING={int(sample['species_mixing'])} "
+        cmd += f"IS_MOUSE={1 if sample['organism']=='mouse' else 0}"
         if not pd.isnull(sample['expected_cell_number']):
             cmd += f" EXPECTED_CELL_NUMBER={int(sample['expected_cell_number'])}"
         print(" \\\n".join(cmd.split(" ")) + "\n")
