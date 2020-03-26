@@ -88,5 +88,5 @@ PD2XX1_10xscRNA_Human_PBMCs_2S3Qmixed,,plate_well,0,0,,sci-RNA-seq,single-cell,P
 PD2XX1_10xscRNA_Mouse_LI,,plate_well,0,0,,sci-RNA-seq,single-cell,PD2XX1,,,,,,,,,,,,,,,,,mouse,BSF_0755_HNNCVDMXX,,,2,4,bsf,,,,,,
 PD205_1_scifi_Mouse_LI_CellsMeOH,metadata/sciRNA-seq.PD205_1_scifi_Mouse_LI_CellsMeOH.csv,plate_well,0,1,,sci-RNA-seq,single-cell,PD205,,,,,,,,,,,,,,,,,mouse,BSF_0755_HNNCVDMXX,,,2,1,bsf,,,,,,
 PD205_2_scifi_Mouse_LI_NucleiFresh,metadata/sciRNA-seq.PD205_2_scifi_Mouse_LI_NucleiFresh.csv,plate_well,0,1,,sci-RNA-seq,single-cell,PD205,,,,,,,,,,,,,,,,,mouse,BSF_0755_HNNCVDMXX,,,2,1,bsf,,,,,,
-PD206_1_scifi_Human_PBMCs_Nuclei1pFA,metadata/sciRNA-seq.PD206_1_scifi_Human_PBMCs_Nuclei1pFA.csv,plate_well,0,1,,sci-RNA-seq,single-cell,PD206,,,,,,,,,,,,,,,,,human,BSF_0755_HNNCVDMXX,,,2,1,bsf,,,,,,
-PD206_4_scifi_Human_Tcells_Nuclei1pFA,metadata/sciRNA-seq.PD206_4_scifi_Human_Tcells_Nuclei1pFA.csv,plate_well,0,1,,sci-RNA-seq,single-cell,PD206,,,,,,,,,,,,,,,,,human,BSF_0755_HNNCVDMXX,,,2,1,bsf,,,,,,
+PD206_1_scifi_Human_PBMCs_Nuclei1pFA,metadata/sciRNA-seq.PD206_1_scifi_Human_PBMCs_Nuclei1pFA.csv,"plate_well,donor_id,donor_sex,tcr_stimulation",0,1,,sci-RNA-seq,single-cell,PD206,,,,,,,,,,,,,,,,,human,BSF_0755_HNNCVDMXX,,,2,1,bsf,,,,,,
+PD206_4_scifi_Human_Tcells_Nuclei1pFA,metadata/sciRNA-seq.PD206_4_scifi_Human_Tcells_Nuclei1pFA.csv,"plate_well,donor_id,donor_sex,tcr_stimulation",0,1,,sci-RNA-seq,single-cell,PD206,,,,,,,,,,,,,,,,,human,BSF_0755_HNNCVDMXX,,,2,1,bsf,,,,,,
