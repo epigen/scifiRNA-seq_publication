@@ -367,7 +367,7 @@ def plot_efficiency(
                 # Plot 10k annotation
                 y = lin_func(1e4, m, b)
                 axis[i, j].text(
-                    1e4, y,
+                    1e4, max(y,1),
                     s=f"{metric.capitalize()}s recovered\nwith 10.000\nreads:\n{y:.2f}",
                     ha="left")
                 # Plot X == Y

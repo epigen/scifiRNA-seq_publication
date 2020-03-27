@@ -176,7 +176,7 @@ report: parse
 
 	sbatch -J scifi_pipeline.report.$(RUN_NAME) \
 	-o $(ROOT_OUTPUT_DIR)/scifi_pipeline.report.log \
-	-p longq --mem 120000 --cpus 4 --time 3-00:00:00 \
+	-p shortq --mem 120000 --cpus 4 --time 0-08:00:00 \
 	--wrap "python3 -u src/scifi_pipeline.report.py \
 	$(ROOT_OUTPUT_DIR)/$(RUN_NAME).metrics.csv.gz \
 	results/$(RUN_NAME)/$(RUN_NAME). \
@@ -184,7 +184,7 @@ report: parse
 
 	sbatch -J scifi_pipeline.report-exon.$(RUN_NAME) \
 	-o $(ROOT_OUTPUT_DIR)/scifi_pipeline.report-exon.log \
-	-p longq --mem 120000 --cpus 4 --time 3-00:00:00 \
+	-p shortq --mem 120000 --cpus 4 --time 0-08:00:00 \
 	--wrap "python3 -u src/scifi_pipeline.report.py \
 	$(ROOT_OUTPUT_DIR)/$(RUN_NAME).exon.metrics.csv.gz \
 	results/$(RUN_NAME)/$(RUN_NAME).exon. \
