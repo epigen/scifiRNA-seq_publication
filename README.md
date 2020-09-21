@@ -1,32 +1,10 @@
-sciRNA-seq/scifi-RNA-seq
+scifi-RNA-seq publication
 ===================
 
-Pipeline and analysis scripts for combinatorial indexing single-cell RNA-seq (sciRNA-seq) and scifi-RNA-seq.
+The repository with source code used in the development of [scifi-RNA-seq (Datlinger et al.)](https://www.biorxiv.org/content/10.1101/2019.12.17.879304v1).
 
-Check the [python executable](scifi), the [Makefile](Makefile) and [source files in src](src/) for more.
+> :warning: This repository includes source code to reproduce the analysis in the manuscript and won't be maintained to support the analysis of other datasets. For that, [see the general-purpose data processing pipeline of scifi-RNA-seq data](https://github.com/epigen/scifiRNA-seq).
 
-Due to the volatility of development of the project in the lab, each experiment can differ wildely from the previous.
-I decided not to keep all the code specific to each version/run, but simply to git tag each version and modify the code to the latest version. A brief description of the various versions is below:
+This repository contains [scripts used in the processing of data and its analysis](src/). For processing the data, the [Makefile](Makefile) runs discrete steps, but a full run can be done using the [submission script](scifi).
 
-|experiment|description|outcome|
-|-|-|-|
-|**PD194-PD195**|scifiRNA-seq - primary human material (PBMCs and T-cells stimulated and unstimulated); high cell number (700k cells)|Very good quality|
-|**PD191-PD193**|scifiRNA-seq - primary material, iPS organoid; cell line mixture; crazy high number (2M cells)|Samples with more than 700k cell input have low complexity likely due to inneficiency of cleanup procedure with so much material; remaining experiments viable and of good quality|
-|**PD190**|scifiRNA-seq - high cell number; species and cell line mixtures|Amazing quality|
-|**PD187-188**|scifiRNA-seq - new version|Amaaaazing!|
-|**SCI023-SCI024**|scifiRNA-seq - T cells from 4 donors|Some problems remain|
-|**SCI022**|scifiRNA-seq - Mixture cells overtook primary cells; first 384 well experiment; learned a few things about going into primary cells; barcodes need further inspection|Failure|
-|**SCI021**|scifiRNA-seq| Large scale 125K mixture experiment, hitting native 10X limitations, scifi still with a lot of space to grow, barcodes need inspection though|Success|
-|**SCI020-resequencing**|scifiRNA-seq, publication 4K mixture experiment"|Success|
-|**SCI020**|scifiRNA-seq| found out optimal tagmentation conditions"|Success|
-|**SCI019-resequencing**|scifiRNA-seq|Success|
-|**SCI019**|scifiRNA-seq| found out 10M reads are enough for rough estimate of experiment pass/fail"|Success|
-|**SCI017-reanalysis**|scifiRNA-seq| found out major bottlenecks| understand system better"|Success|
-|**SCI017**|scifiRNA-seq| but somewhat innefficient"|Success|
-|**SCI016**|first scifiRNA-seq|Failure, but promising|
-|**SCI012-013**|sciRNA-seq optimizations: various enzymes, cycles, cells vs nuclei, anchored vs unanchored primers|Greatly improved|
-|**SCI007/010/011**|sciRNA-seq optimizations: nuclei extraction/preparation/sorting|Mildly improved|
-|**BSF_0477_HJ7J7BGX2**|First single-cell sciRNA-seq. A species-mixing experiment|Complete failure|
-|**SCI004**|First test of sciRNA-seq, but run in bulk mode|Success|
-
-the experiment IDs correspond to the [metadata annotations](metadata/annotation.csv)
+Metadata registering the experiments and their barcode annotation is [also avaialable](metadata/), and software required is listed in the [requirements file](requirements.txt).
