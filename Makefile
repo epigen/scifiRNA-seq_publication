@@ -9,9 +9,9 @@ parse:
 	@[ "${FLOWCELL}" ] || ( echo "'FLOWCELL' is not set"; exit 1 )
 	@[ "${N_LANES}" ] || ( echo "'N_LANES' is not set"; exit 1 )
 	@[ "${N_BARCODES}" ] || ( echo "'N_BARCODES' is not set"; exit 1 )
-ANNOTATION ?= "/scratch/lab_bock/shared/projects/sci-rna/metadata/sciRNA-seq.PD190_humanmouse.oligos_2019-09-05.csv"
+ANNOTATION ?= "$(shell pwd)/metadata/sciRNA-seq.PD190_humanmouse.oligos_2019-09-05.csv"
 #ROOT_OUTPUT_DIR ?= /scratch/lab_bock/shared/projects/sci-rna/data/$(RUN_NAME)
-ROOT_OUTPUT_DIR ?= /scratch/users/dbarreca/private/projects/SCIFI/OUT/$(RUN_NAME)
+ROOT_OUTPUT_DIR ?= $(shell pwd)/data/pipeline_out/$(RUN_NAME)
 EXPECTED_CELL_NUMBER ?= 200000
 MIN_UMI_OUTPUT ?= 3
 VARIABLES ?= "plate_well"
@@ -179,7 +179,7 @@ report: parse
 	-p shortq --mem 120000 --cpus 4 --time 0-08:00:00 \
 	--wrap "python3 -u src/scifi_pipeline.report.py \
 	$(ROOT_OUTPUT_DIR)/$(RUN_NAME).metrics.csv.gz \
-	results/$(RUN_NAME)/$(RUN_NAME). \
+	./data/reports/$(RUN_NAME)/$(RUN_NAME). \
 	--plotting-attributes $(VARIABLES) $(SPECIES_MIX_FLAG)"
 
 	sbatch -J scifi_pipeline.report-exon.$(RUN_NAME) \
@@ -187,7 +187,7 @@ report: parse
 	-p shortq --mem 120000 --cpus 4 --time 0-08:00:00 \
 	--wrap "python3 -u src/scifi_pipeline.report.py \
 	$(ROOT_OUTPUT_DIR)/$(RUN_NAME).exon.metrics.csv.gz \
-	results/$(RUN_NAME)/$(RUN_NAME).exon. \
+		./data/reports/$(RUN_NAME)/$(RUN_NAME).exon. \
 	--plotting-attributes $(VARIABLES) $(SPECIES_MIX_FLAG)"
 	$(info "scifi_pipeline: done")
 

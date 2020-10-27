@@ -8,4 +8,5 @@ notebooks/*
 *.html
 SCIFI_ENV
 SCIFI_ENV_BIS
+data
 __pycache__
