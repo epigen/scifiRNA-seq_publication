@@ -172,7 +172,7 @@ join_corrected: parse
 report: parse
 	$(info "scifi_pipeline: report")
 
-	mkdir -p results/$(RUN_NAME)
+	mkdir -p ./data/reports/$(RUN_NAME)
 
 	sbatch -J scifi_pipeline.report.$(RUN_NAME) \
 	-o $(ROOT_OUTPUT_DIR)/scifi_pipeline.report.log \
