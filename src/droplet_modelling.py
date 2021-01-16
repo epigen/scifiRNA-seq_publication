@@ -1,3 +1,9 @@
+#! /usr/bin/env python
+
+"""
+Modeling droplet fill rates and collision rates of the 10X Chromium device.
+"""
+
 import sys
 from typing import List, Union, Tuple, Dict, Callable, Optional, Collection
 from pathlib import Path

@@ -1,6 +1,11 @@
+data/*
+metadata_old/*
+csvs/*
 results/*
 src/old/*
+src_old/*
 notebooks/*
+manuscript/*
 *.svg
 *.png
 *.fastq.gz
