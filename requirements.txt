@@ -1,12 +1,13 @@
-numpy>=1.14.0
-scipy>=1.0.0
-pandas>=0.22.0
-pysam>=0.13
-matplotlib>=2.1.1
-seaborn>=0.8.1
-joblib
-anndata
+h5py==2.9.0
+numpy==1.19.3
+scipy==1.5.3
+pandas==1.1.4
+pysam==0.16.0.1
+matplotlib==3.0.*
+seaborn==0.11.0
+joblib==0.12.5
+anndata==0.6.22.post1
 # below only required for report step
-ngs-toolkit==0.19.3
-scanpy
-biopython
+ngs-toolkit==0.18.1
+scanpy==1.4.4.post1
+biopython==1.74

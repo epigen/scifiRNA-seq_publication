@@ -34,22 +34,19 @@ def parse_args(cli=None):
         "--cell-barcodes", dest="cell_barcodes", default=["r1", "r2"], nargs="+",
         help="Which barcodes to take into consideration to group molecules by. "
              "Defaults to 'r1 r2'.")
-    root = os.path.expanduser("~/projects/sci-rna")
     parser.add_argument(
         "--r1-annot", dest="r1_annotation_file",
         help="CSV file with annotations of r1 barcodes.")
     parser.add_argument(
         "--r1-attributes", dest="r1_attributes", type=str,
         help="Which r1 attributes to annotate cells with. A comma-separated list.")
-    default = os.path.join(root, "metadata", "737K-cratac-v1.reverse_complement.csv")
     parser.add_argument(
         "--r1-barcode-as-r1-tag", dest="r1_barcode_as_r1_tag", action="store_true",
         help=("Whether the round1 barcode has been encoded in the 'r1' tag. If not set will use  first "
               "13 bp of the 'BC' tag of the input BAM files."))
     parser.add_argument(
-        "--r2-barcodes", dest="r2_barcodes", default=default,
-        help="Whilelist file with r2 barcodes."
-             f"Defaults to '{default}.")
+        "--r2-barcodes", dest="r2_barcodes",
+        help="Whilelist file with r2 barcodes.")
     choices = ["original", "reverse_complement"]
     parser.add_argument(
         "--barcode-orientation", dest="barcode_orientation", choices=choices, default=choices[0],
@@ -407,6 +404,7 @@ def parse_data(files, nrows=1e10, cell_barcodes=['r1', 'r2'], r1_barcode_from_i7
         print(f"# {time.asctime()} - Parsing file {file}.")
 
         bam = pysam.AlignmentFile(file)
+        lines = 0;
         for i, read in enumerate(bam):
             if i >= nrows:
                 break
@@ -446,7 +444,8 @@ def parse_data(files, nrows=1e10, cell_barcodes=['r1', 'r2'], r1_barcode_from_i7
                 gene[0],
                 read.pos]
             pieces.append(piece)
-        print(f"# {time.asctime()} - Done with file {file}. {i} lines.")
+            lines=i
+        print(f"# {time.asctime()} - Done with file {file}. {lines} lines.")
 
     print(f"# {time.asctime()} - Concatenating parts.")
     return pd.DataFrame(pieces, columns=['read'] + cell_barcodes + ['umi', 'gene', 'pos'])

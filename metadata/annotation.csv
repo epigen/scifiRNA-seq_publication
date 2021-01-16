@@ -28,3 +28,15 @@ sciplex_GSE139944,metadata/sciplex_GSE139944.barcodes.csv,"plate_well,cell_line"
 scirna_GSE98561,metadata/scirna_GSE98561.barcodes.csv,plate_well,1,sci-rna,single-cell,,HEK293T_3T3_HL60,,cells,,human_mouse,GSE98561,,1,1,GEO
 splitseq_300,metadata/splitseq_GSE110823.barcodes.csv,plate_well,1,split-seq,single-cell,,,,cells_and_nuclei,,human_mouse,GSE110823,,1,1,GEO
 splitseq_3000,metadata/splitseq_GSE110823.barcodes.csv,plate_well,1,split-seq,single-cell,,,,cells_and_nuclei,,human_mouse,GSE110823,,1,1,GEO
+PD209_S_scATAC-std_libprep-std,metadata/sciRNA-seq.PD209_S_scATAC-std_libprep-std.csv,"plate_well,sample_type,reverse_transcriptase",1,1,PD209,,,human_mouse,BSF_0758_HLF7LDRXX,2,1,bsf,,,,
+PD209_S3_scATAC-std_libprep-S3,metadata/sciRNA-seq.PD209_S3_scATAC-std_libprep-S3.csv,"plate_well,sample_type,reverse_transcriptase",1,1,PD209,,,human_mouse,BSF_0758_HLF7LDRXX,2,1,bsf,,,,
+PD209_N_scATAC-NextGEM_libprep-std,metadata/sciRNA-seq.PD209_N_scATAC-NextGEM_libprep-std.csv,"plate_well,sample_type,reverse_transcriptase",1,1,PD209,,,human_mouse,BSF_0758_HLF7LDRXX,2,1,bsf,,,,
+PD209_N3_scATAC-NextGEM_libprep-S3,metadata/sciRNA-seq.PD209_N3_scATAC-NextGEM_libprep-S3.csv,"plate_well,sample_type,reverse_transcriptase",1,1,PD209,,,human_mouse,BSF_0758_HLF7LDRXX,2,1,bsf,,,,
+PD212_scifi_1N_4lines_7650_nuclei,metadata/sciRNA-seq.PD212_scifi_1N_4lines_7650_nuclei.csv,"plate_well,cell_line",0,1,PD212,,,human,BSF_0774_HNNGMDMXX,2,1,bsf,,,,
+PD212_scifi_2C_4lines_7650_MeOH-cells,metadata/sciRNA-seq.PD212_scifi_2C_4lines_7650_MeOH-cells.csv,"plate_well,cell_line",0,1,PD212,,,human,BSF_0774_HNNGMDMXX,2,1,bsf,,,,
+PD213_scifi_1_CRISPR-TCR_15300_MeOH-cells,metadata/sciRNA-seq.PD213_scifi_1_CRISPR-TCR_15300_MeOH-cells.csv,"plate_well,gRNA_ID,TCR_status",0,1,PD213,,,human,BSF_0774_HNNGMDMXX,2,1,bsf,,,,
+PD213_scifi_2_CRISPR-TCR_77300_MeOH-cells,metadata/sciRNA-seq.PD213_scifi_2_CRISPR-TCR_77300_MeOH-cells.csv,"plate_well,gRNA_ID,TCR_status",0,1,PD213,,,human,BSF_0774_HNNGMDMXX,2,1,bsf,,,,
+PD213_scifi_3_CRISPR-TCR_15300_nuclei,metadata/sciRNA-seq.PD213_scifi_3_CRISPR-TCR_15300_nuclei.csv,"plate_well,gRNA_ID,TCR_status",0,1,PD213,,,human,BSF_0774_HNNGMDMXX,2,1,bsf,,,,
+T46_10xGenomics_1_4lines_7650_nuclei,,,0,0,PD212,,,human,BSF_0774_HNNGMDMXX,2,4,bsf,,,,
+T46_10xGenomics_2_4lines_7650_MeOH-cells,,,0,0,PD212,,,human,BSF_0774_HNNGMDMXX,2,4,bsf,,,,
+T46_10xGenomics_3_4lines_7650_intact-cells,,,0,0,PD212,,,human,BSF_0774_HNNGMDMXX,2,4,bsf,,,,

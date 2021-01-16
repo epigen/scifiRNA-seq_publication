@@ -89,8 +89,8 @@ LANES=`seq 1 $N_LANES`
 ARRAY_FILE=${ROOT_OUTPUT_DIR}/scifi_pipeline.${RUN_NAME}.map.array_file.txt
 rm -f $ARRAY_FILE
 
-# # unfortunatelly, even though STAR can output to stdout 
-# # and featureCounts read from stdin, one cannot pipe them as 
+# # unfortunatelly, even though STAR can output to stdout
+# # and featureCounts read from stdin, one cannot pipe them as
 # # featureCounts does not support detailed BAM output with stdin
 for SAMPLE_NAME in `tail -n +2 $BARCODE_ANNOTATION | cut -d , -f 1`; do
 
@@ -114,8 +114,13 @@ else
         done
     else
         for LANE in ${LANES[@]}; do
-            # BAMS+=(`echo $DIR/${FLOWCELL}_${LANE}_samples/${FLOWCELL}_${LANE}#${SAMPLE_NAME}.bam`)
-            BAMS+=(`echo $DIR/${SAMPLE_NAME}.annotated.bam`)
+            SAMPLE_FILE=`echo $DIR/${FLOWCELL}_${LANE}_samples/${FLOWCELL}_${LANE}#${SAMPLE_NAME}.bam`
+            if [ ! -f $SAMPLE_FILE ]; then
+                SAMPLE_FILE=`echo $DIR/${FLOWCELL}_${LANE}_samples/${FLOWCELL}_${LANE}#${SAMPLE_NAME}_01.bam`
+            fi
+
+            BAMS+=(${SAMPLE_FILE})
+            #BAMS+=(`echo $DIR/${SAMPLE_NAME}.annotated.bam`)
         done
     fi
     LANE="ALL"
