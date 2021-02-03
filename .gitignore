@@ -10,3 +10,5 @@ SCIFI_ENV
 SCIFI_ENV_BIS
 data
 __pycache__
+publish_utils/*
+bam_utils/*

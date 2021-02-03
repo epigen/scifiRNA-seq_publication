@@ -1,65 +1,98 @@
 .DEFAULT_GOAL := all
 
-# These parameters can be overwritten
+# STAR CONFIGURATION
 STAR_EXE := /home/dbarreca/bin/STAR
+
+HUMAN_STAR_DIR :=  /data/groups/lab_bock/shared/resources/genomes/hg38/indexed_STAR-2.7.0e/
+HUMAN_GTF_FILE := /data/groups/lab_bock/shared/resources/genomes/hg38/10X/refdata-cellranger-GRCh38-1.2.0/genes/genes.gtf
+
+MOUSE_STAR_DIR :=  /home/dbarreca/resources/mm10_e99/indexed_STAR-2.7.0e/
+MOUSE_GTF_FILE := /home/dbarreca/resources/mm10_e99/mm10_e99.gtf
+
+HUMAN_MOUSE_STAR_DIR := /data/groups/lab_bock/shared/resources/genomes/hg38_mm10_transgenes_Tcrlibrary/indexed_STAR_2.7.0e/
+HUMAN_MOUSE_GTF_FILE := /data/groups/lab_bock/shared/resources/genomes/hg38_mm10_transgenes_Tcrlibrary/Homo_sapiens-Mus_musculus.Ensembl92.dna.primary_assembly.Tcr_lambda_spiked.gtf
+
+# OTHER RESOURCES
 R2_BARCODES := $(shell pwd)/metadata/737K-cratac-v1.reverse_complement.csv
+
+# INPUT/OUTPUT CONFIGURATION
+
+## FOLDER CONTAINING DEMULTIPLEXED DATA (ONE BAM FILE PER WELL)
+RAW_DATA_DIR := $(shell pwd)/data/raw/run
+
+## FOLDER CONTAINING MERGED BAM FILES (i.e. DOWNLOADED FROM GEO)
+ROOT_MERGE_BAM_DIR ?= $(shell pwd)/data/merge_bam
+
+## FOLDER CONTAINING SPLIT BAM FILES
+### This is to be used if using the demultiplexed files
+#### ROOT_INPUT_DIR := $(RAW_DATA_DIR)
+### This is to be used if using the downloaded and split files
+ROOT_INPUT_DIR := $(shell pwd)/data/split_bam
+
+ROOT_OUTPUT_DIR ?= $(shell pwd)/data/pipeline_out/$(RUN_NAME)
+ROOT_REPORTS_DIR ?= $(shell pwd)/data/pipeline_out/reports
 
 parse:
 	@[ "${RUN_NAME}" ] || ( echo "'RUN_NAME' is not set"; exit 1 )
-	@[ "${FLOWCELL}" ] || ( echo "'FLOWCELL' is not set"; exit 1 )
-	@[ "${N_LANES}" ] || ( echo "'N_LANES' is not set"; exit 1 )
 	@[ "${N_BARCODES}" ] || ( echo "'N_BARCODES' is not set"; exit 1 )
-ANNOTATION ?= "$(shell pwd)/metadata/sciRNA-seq.PD190_humanmouse.oligos_2019-09-05.csv"
-#ROOT_OUTPUT_DIR ?= /scratch/lab_bock/shared/projects/sci-rna/data/$(RUN_NAME)
-ROOT_OUTPUT_DIR ?= $(shell pwd)/data/pipeline_out/$(RUN_NAME)
+	@[ "${FLOWCELLS}" ] || ( echo "'FLOWCELLS' is not set"; exit 1 )
+	@[ "${ANNOTATION}" ] || ( echo "'ANNOTATION' is not set"; exit 1 )
+
+
 EXPECTED_CELL_NUMBER ?= 200000
 MIN_UMI_OUTPUT ?= 3
 VARIABLES ?= "plate_well"
 ARRAY_SIZE ?= 24
 
-STAR_DIR := /data/groups/lab_bock/shared/resources/genomes/hg38/indexed_STAR-2.7.0e/
-GTF_FILE := /data/groups/lab_bock/shared/resources/genomes/hg38/10X/refdata-cellranger-GRCh38-1.2.0/genes/genes.gtf
+STAR_DIR := $(HUMAN_STAR_DIR)
+GTF_FILE := $(HUMAN_GTF_FILE)
 
 IS_MOUSE ?= 0
 ifeq ($(IS_MOUSE), 1)
-	STAR_DIR=/home/dbarreca/resources/mm10_e99/indexed_STAR-2.7.0e/
-	GTF_FILE=/home/dbarreca/resources/mm10_e99/mm10_e99.gtf
+  STAR_DIR := $(MOUSE_STAR_DIR)
+  GTF_FILE := $(MOUSE_GTF_FILE)
 endif
+
 SPECIES_MIXING ?= 1
 SPECIES_MIX_FLAG :=
 ifeq ($(SPECIES_MIXING), 1)
 	SPECIES_MIX_FLAG := --species-mixture
-	STAR_DIR := /data/groups/lab_bock/shared/resources/genomes/hg38_mm10_transgenes_Tcrlibrary/indexed_STAR_2.7.0e/
-	GTF_FILE := /data/groups/lab_bock/shared/resources/genomes/hg38_mm10_transgenes_Tcrlibrary/Homo_sapiens-Mus_musculus.Ensembl92.dna.primary_assembly.Tcr_lambda_spiked.gtf
+	STAR_DIR := $(HUMAN_MOUSE_STAR_DIR)
+  GTF_FILE := $(HUMAN_MOUSE_GTF_FILE)
 endif
 
-CHUNKS ?= 1000
-CHUNK_BATCH_SIZE ?= 25
-GRNA_PBS_SEQUENCE ?= GTGGAAAGGACGAAACACCG
-
-
-trim: parse
-	# only for gRNA samples
-	$(info "scifi_pipeline: trim")
-	sh src/scifi_pipeline.trim.sh \
+merge_bam: parse
+	$(info "scifi_pipeline: merge_bam")
+	sh src/scifi_pipeline.merge_bam.sh \
 	--run-name=$(RUN_NAME) \
-	--flowcell=$(FLOWCELL) \
-	--n-lanes=$(N_LANES) \
+	--flowcells="$(FLOWCELLS)" \
+	--n-barcodes=$(N_BARCODES) \
 	--annotation=$(ANNOTATION) \
-	--pbs-sequence=$(GRNA_PBS_SEQUENCE) \
-	--cpus=1 \
+	--cpus=8 \
 	--mem=8000 \
-	--queue=longq \
+	--queue=shortq \
 	--time=08:00:00 \
-	--output-dir=$(ROOT_OUTPUT_DIR)
+	--output-dir=$(ROOT_MERGE_BAM_DIR) \
+	--input-dir=$(RAW_DATA_DIR)
+	$(info "scifi_pipeline: done")
+
+split_bam: parse
+	$(info "scifi_pipeline: split_bam")
+	sh src/scifi_pipeline.split_bam.sh \
+	--run-name=$(RUN_NAME) \
+	--cpus=8 \
+	--mem=8000 \
+	--queue=mediumq \
+	--time=2-00:00:00 \
+	--output-dir=$(ROOT_INPUT_DIR) \
+	--input-dir=$(ROOT_MERGE_BAM_DIR)
 	$(info "scifi_pipeline: done")
 
 map: parse
 	$(info "scifi_pipeline: map")
 	sh src/scifi_pipeline.map.sh \
 	--run-name=$(RUN_NAME) \
-	--flowcell=$(FLOWCELL) \
-	--n-lanes=$(N_LANES) \
+	--flowcells="$(FLOWCELLS)" \
 	--n-barcodes=$(N_BARCODES) \
 	--annotation=$(ANNOTATION) \
 	--cpus=4 \
@@ -68,22 +101,10 @@ map: parse
 	--time=08:00:00 \
 	--array-size=$(ARRAY_SIZE) \
 	--output-dir=$(ROOT_OUTPUT_DIR) \
+	--input-dir=$(ROOT_INPUT_DIR) \
 	--star-exe=$(STAR_EXE) \
 	--star-dir=$(STAR_DIR) \
 	--gtf=$(GTF_FILE)
-	$(info "scifi_pipeline: done")
-
-maketracks: parse
-	$(info "scifi_pipeline: maketracks")
-	sh src/scifi_pipeline.maketracks.sh \
-	--run-name=$(RUN_NAME) \
-	--annotation=$(ANNOTATION) \
-	--output-dir=$(ROOT_OUTPUT_DIR) \
-	--cpus=1 \
-	--mem=8000 \
-	--queue=shortq \
-	--time=01:00:00 \
-	--array-size=$(ARRAY_SIZE)
 	$(info "scifi_pipeline: done")
 
 filter: parse
@@ -117,117 +138,33 @@ join: parse
 	--time=08:00:00
 	$(info "scifi_pipeline: done")
 
-barcodes: parse
-	$(info "scifi_pipeline: barcodes")
-	for CHUNK in $(shell seq 0 $(CHUNK_BATCH_SIZE) $(CHUNKS)); \
-	do \
-		sbatch -J scifi_pipeline.barcodes.$(RUN_NAME).$(CHUNKS).$${CHUNK} \
-		-o $(ROOT_OUTPUT_DIR)/scifi_pipeline.barcodes.$(RUN_NAME).$(CHUNKS).$${CHUNK}.log \
-		-p shortq --mem 16000 --cpus 1 --time 04:00:00 \
-		--wrap "python3 -u src/scifi_pipeline.barcode_matcher.py \
-		--metrics $(ROOT_OUTPUT_DIR)/$(RUN_NAME).metrics.csv.gz \
-		--output-prefix $(ROOT_OUTPUT_DIR)/$(RUN_NAME). \
-		--total-chunk $(CHUNKS) \
-		--start-chunk $${CHUNK} \
-		--batch-size $(CHUNK_BATCH_SIZE)"; \
-	done
-
-fix: parse
-	cat $(ROOT_OUTPUT_DIR)/$(RUN_NAME).fixed_barcodes.*-*.tsv | \
-	sort > $(ROOT_OUTPUT_DIR)/$(RUN_NAME).fixed_barcodes.mapping.tsv
-
-filter_corrected: parse
-	$(info "scifi_pipeline: filter_corrected")
-	sh src/scifi_pipeline.filter.sh \
-	--run-name=$(RUN_NAME) \
-	--output-dir=$(ROOT_OUTPUT_DIR) \
-	--annotation=$(ANNOTATION) \
-	--expected-cell-number=$(EXPECTED_CELL_NUMBER) \
-	--min-umi-output=${MIN_UMI_OUTPUT} \
-	--variables=$(VARIABLES) \
-	--species-mixture=$(SPECIES_MIXING) \
-	--cpus=1 \
-	--mem=8000 \
-	--queue=shortq \
-	--time=01:00:00 \
-	--correct-barcodes=1 \
-	--correct-barcode-file=$(ROOT_OUTPUT_DIR)/$(RUN_NAME).fixed_barcodes.mapping.tsv \
-	--array-size=$(ARRAY_SIZE)
-	$(info "scifi_pipeline: done")
-
-join_corrected: parse
-	$(info "scifi_pipeline: join_corrected")
-	sh src/scifi_pipeline.join.sh \
-	--run-name=$(RUN_NAME) \
-	--output-dir=$(ROOT_OUTPUT_DIR) \
-	--variables=$(VARIABLES) \
-	--species-mixture=$(SPECIES_MIXING) \
-	--cpus=1 \
-	--mem=12000 \
-	--queue=shortq \
-	--time=08:00:00 \
-	--correct-barcodes=1
-	$(info "scifi_pipeline: done")
-
 report: parse
 	$(info "scifi_pipeline: report")
 
-	mkdir -p ./data/reports/$(RUN_NAME)
+	mkdir -p $(ROOT_REPORTS_DIR)/$(RUN_NAME)
 
 	sbatch -J scifi_pipeline.report.$(RUN_NAME) \
-	-o $(ROOT_OUTPUT_DIR)/scifi_pipeline.report.log \
-	-p shortq --mem 120000 --cpus 4 --time 0-08:00:00 \
+	-o $(ROOT_REPORTS_DIR)/$(RUN_NAME)/scifi_pipeline.report.log \
+	-p shortq --mem 250000 --cpus 4 --time 0-08:00:00 \
 	--wrap "python3 -u src/scifi_pipeline.report.py \
 	$(ROOT_OUTPUT_DIR)/$(RUN_NAME).metrics.csv.gz \
-	./data/reports/$(RUN_NAME)/$(RUN_NAME). \
+	$(ROOT_REPORTS_DIR)/$(RUN_NAME)/$(RUN_NAME). \
 	--plotting-attributes $(VARIABLES) $(SPECIES_MIX_FLAG)"
 
 	sbatch -J scifi_pipeline.report-exon.$(RUN_NAME) \
-	-o $(ROOT_OUTPUT_DIR)/scifi_pipeline.report-exon.log \
-	-p shortq --mem 120000 --cpus 4 --time 0-08:00:00 \
+	-o $(ROOT_REPORTS_DIR)/$(RUN_NAME)/scifi_pipeline.report-exon.log \
+	-p shortq --mem 250000 --cpus 4 --time 0-08:00:00 \
 	--wrap "python3 -u src/scifi_pipeline.report.py \
 	$(ROOT_OUTPUT_DIR)/$(RUN_NAME).exon.metrics.csv.gz \
-		./data/reports/$(RUN_NAME)/$(RUN_NAME).exon. \
+	$(ROOT_REPORTS_DIR)/$(RUN_NAME)/$(RUN_NAME).exon. \
 	--plotting-attributes $(VARIABLES) $(SPECIES_MIX_FLAG)"
 	$(info "scifi_pipeline: done")
 
-	#sbatch -J scifi_pipeline.report_corrected.$(RUN_NAME) \
-	#-o $(ROOT_OUTPUT_DIR)/scifi_pipeline.report_corrected.log \
-	#-p longq --mem 120000 --cpus 4 --time 3-00:00:00 \
-	#--wrap "python3 -u src/scifi_pipeline.report.py \
-	#$(ROOT_OUTPUT_DIR)/$(RUN_NAME).metrics_corrected.csv.gz \
-	#results/$(RUN_NAME)/$(RUN_NAME).corrected. \
-	#--plotting-attributes $(VARIABLES) $(SPECIES_MIX_FLAG)"
 
-	#sbatch -J scifi_pipeline.report_corrected-exon.$(RUN_NAME) \
-	#-o $(ROOT_OUTPUT_DIR)/scifi_pipeline.report_corrected-exon.log \
-	#-p longq --mem 120000 --cpus 4 --time 3-00:00:00 \
-	#--wrap "python3 -u src/scifi_pipeline.report.py \
-	#$(ROOT_OUTPUT_DIR)/$(RUN_NAME).exon.metrics_corrected.csv.gz \
-	#results/$(RUN_NAME)/$(RUN_NAME).exon.corrected. \
-	#--plotting-attributes $(VARIABLES) $(SPECIES_MIX_FLAG)"
-	$(info "scifi_pipeline: done")
-
-matches:
-	$(info "scifi: barcode_match")
-	for N in 1000 5000 10000 20000 200000 2000000 20000000 200000000; \
-	do \
-		sbatch -J scifi.barcode_match.$${N} \
-		-o results/barcode_matches/scifi.barcode_match.$${N}.log \
-		-p mediumq --mem 32000 --cpus 1 --time 1-08:00:00 \
-		--wrap "python3 -u src/barcode_profiling.py \
-		-n $${N} metadata/annotation.csv"; \
-	done
-
-
-metrics: matches
-
-
-
-all: trim map filter join barcodes fix filter_corrected join_corrected report
+all: map filter join  report
 
 clean:
 	find . -name "*bam" ! -name external -delete
 
-.PHONY: trim map filter join barcodes fix filter_corrected join_corrected report clean
+.PHONY: map filter join  report clean
 .SILENT: all

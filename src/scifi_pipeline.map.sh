@@ -7,12 +7,8 @@ case $i in
     RUN_NAME="${i#*=}"
     shift # past argument=value
     ;;
-    -f=*|--flowcell=*)
-    FLOWCELL="${i#*=}"
-    shift # past argument=value
-    ;;
-    -l=*|--n-lanes=*)
-    N_LANES="${i#*=}"
+    -f=*|--flowcells=*)
+    FLOWCELLS="${i#*=}"
     shift # past argument=value
     ;;
     -l=*|--n-barcodes=*)
@@ -25,6 +21,10 @@ case $i in
     ;;
     --output-dir=*)
     ROOT_OUTPUT_DIR="${i#*=}"
+    shift # past argument=value
+    ;;
+    --input-dir=*)
+    ROOT_INPUT_DIR="${i#*=}"
     shift # past argument=value
     ;;
     --star-exe=*)
@@ -66,8 +66,7 @@ esac
 done
 
 echo "RUN_NAME         = ${RUN_NAME}"
-echo "FLOWCELL         = ${FLOWCELL}"
-echo "NUMBER OF LANES  = ${N_LANES}"
+echo "FLOWCELLS        = ${FLOWCELLS}"
 echo "BARCODE NUMBER   = ${N_BARCODES}"
 echo "ANNOTATION       = ${BARCODE_ANNOTATION}"
 echo "ROOT DIRECTORY   = ${ROOT_OUTPUT_DIR}"
@@ -83,8 +82,6 @@ fi
 
 mkdir -p $ROOT_OUTPUT_DIR
 cd $ROOT_OUTPUT_DIR
-LANES=`seq 1 $N_LANES`
-
 
 ARRAY_FILE=${ROOT_OUTPUT_DIR}/scifi_pipeline.${RUN_NAME}.map.array_file.txt
 rm -f $ARRAY_FILE
@@ -96,35 +93,31 @@ for SAMPLE_NAME in `tail -n +2 $BARCODE_ANNOTATION | cut -d , -f 1`; do
 
 # prepare output directory
 SAMPLE_DIR=${ROOT_OUTPUT_DIR}/${SAMPLE_NAME}
-mkdir -p $SAMPLE_DIR
+if [[ ! -d $SAMPLE_DIR ]];then
+  mkdir -p $SAMPLE_DIR
+fi
 
 function join_by { local IFS="$1"; shift; echo "$*"; }
 
-if [[ $string == *"gRNA"* ]]; then
-    INPUT_BAM=${PREFIX}.trimmed.bam
-else
-    BAMS=()
-    DIR=/scratch/users/dbarreca/private/custom_demux/scRNA/${FLOWCELL}
-    # DIR=/scratch/users/arendeiro/custom_demux/scRNA
-    # DIR=/scratch/lab_bsf/samples/${FLOWCELL}
-    # DIR=/scratch/lab_bock/shared/projects/sci-rna/data/external/${FLOWCELL}/
-    if [[ $N_BARCODES -gt 1 ]]; then
-        for LANE in ${LANES[@]}; do
-            BAMS+=(`eval echo $DIR/${FLOWCELL}_${LANE}_samples/${FLOWCELL}_${LANE}#${SAMPLE_NAME}_{01..$N_BARCODES}.bam`)
-        done
-    else
-        for LANE in ${LANES[@]}; do
-            SAMPLE_FILE=`echo $DIR/${FLOWCELL}_${LANE}_samples/${FLOWCELL}_${LANE}#${SAMPLE_NAME}.bam`
-            if [ ! -f $SAMPLE_FILE ]; then
-                SAMPLE_FILE=`echo $DIR/${FLOWCELL}_${LANE}_samples/${FLOWCELL}_${LANE}#${SAMPLE_NAME}_01.bam`
-            fi
+IFS=';' read -ra flowcells_arr <<< "$FLOWCELLS"
 
-            BAMS+=(${SAMPLE_FILE})
-            #BAMS+=(`echo $DIR/${SAMPLE_NAME}.annotated.bam`)
-        done
-    fi
-    LANE="ALL"
-fi
+BAMS=()
+for FLOWCELL in "${flowcells_arr[@]}"
+do
+  DIR=${ROOT_INPUT_DIR}/$(echo $FLOWCELL|cut -d_ -f1,2,3)
+
+  if [[ $N_BARCODES -gt 1 ]]; then
+      BAMS+=(`eval echo $DIR/${FLOWCELL}_samples/${FLOWCELL}#${SAMPLE_NAME}_{01..$N_BARCODES}.bam`)
+  else
+      SAMPLE_FILE=`echo $DIR/${FLOWCELL}_samples/${FLOWCELL}#${SAMPLE_NAME}.bam`
+      if [ ! -f $SAMPLE_FILE ]; then
+          SAMPLE_FILE=`echo $DIR/${FLOWCELL}_samples/${FLOWCELL}#${SAMPLE_NAME}_01.bam`
+      fi
+
+      BAMS+=(${SAMPLE_FILE})
+  fi
+  LANE="ALL"
+done
 
 # Add a line for each sample to array file
 PREFIX=${SAMPLE_DIR}/${SAMPLE_NAME}.${LANE}
@@ -148,8 +141,7 @@ echo "date" >> $JOB
 echo '' >> $JOB
 
 echo "#RUN_NAME         = ${RUN_NAME}" >> $JOB
-echo "#FLOWCELL         = ${FLOWCELL}" >> $JOB
-echo "#NUMBER OF LANES  = ${N_LANES}" >> $JOB
+echo "#FLOWCELLS         = ${FLOWCELLS}" >> $JOB
 echo "#BARCODE NUMBER   = ${N_BARCODES}" >> $JOB
 echo "#ANNOTATION       = ${BARCODE_ANNOTATION}" >> $JOB
 echo "#ROOT DIRECTORY   = ${ROOT_OUTPUT_DIR}" >> $JOB
@@ -226,5 +218,4 @@ sbatch -J $JOB_NAME \
 --array=$ARRAY -N 1 \
 $JOB
 
-# done
 done

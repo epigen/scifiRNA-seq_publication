@@ -90,14 +90,6 @@ def parse_args(cli=None):
         "--correct-r1-barcodes", dest="correct_r1_barcodes", action="store_true",
         help="Whether set all r1 barcodes to the respective sequence from annotation."
     )
-    parser.add_argument(
-        "--correct-r2-barcodes", dest="correct_r2_barcodes", action="store_true",
-        help="Whether to use a mapping of existing barcodes to correct r2 barcodes."
-    )
-    parser.add_argument(
-        "--correct-r2-barcode-file", dest="correct_r2_barcode_file",
-        help="File containing mapping between existing barcodes and correct barcodes."
-    )
 
     # # Example run:
     # cli = [
@@ -265,7 +257,7 @@ def main(cli=None):
 
     # barcode annotations
     r1_annotation = None
-    if args.r1_annotation_file is not None:
+    if args.r1_annotation_file is not None and 'r1' not in args.cell_barcodes:
         annotation = pd.read_csv(args.r1_annotation_file)
         attrs = (
             annotation
@@ -274,31 +266,13 @@ def main(cli=None):
             .squeeze(axis=0))
         print(f"# {time.asctime()} - Updating r1 barcodes to the sequence of the well.")
         df['r1'] = attrs.name
-        # df['r1'] = df['r1'].value_counts().idxmax()
-
-        if "r1" in args.cell_barcodes:
-            r1_annotation = annotation.set_index("combinatorial_barcode")[args.r1_attributes]
-            r1_annotation.index.name = "r1"
-        else:
-            r1_annotation = attrs
+        r1_annotation = attrs
 
     if "r2" in args.cell_barcodes:
         r2_barcodes = pd.read_csv(args.r2_barcodes)
 
     # correct r2 barcodes
     args.output_suffix = ""
-    if args.correct_r2_barcodes:
-        print(f"# {time.asctime()} - Updating barcodes not matching reference with corrected ones.")
-        mapping = pd.read_csv(args.correct_r2_barcode_file, header=None, sep="\t")
-        mapping = mapping.dropna().set_index(0).squeeze().to_dict()
-
-        # update
-        unmatch = ~df['r2'].isin(r2_barcodes[args.barcode_orientation])
-        df.loc[unmatch, 'r2'] = [
-            mapping[x]
-            if x in mapping else x
-            for x in df.loc[unmatch, 'r2']]
-        args.output_suffix = "_corrected"
 
     nr = df.isnull().sum().sum()
     if nr > 0:
@@ -323,10 +297,6 @@ def main(cli=None):
         species_mixture=args.species_mixture,
         save_intermediate=args.save_intermediate,
         suffix=args.output_suffix)
-
-    if args.r1_annotation_file is not None:
-        # Add required attributes
-        metrics = metrics.assign(**dict(zip(attrs.index, attrs.values)))
 
     # Save
     int_cols = ['read', 'unique_umis', 'umi', 'gene']
@@ -598,8 +568,7 @@ def gather_stats_per_cell(
 
     if not r1_annotation.empty:
         print(f"# {time.asctime()} - Adding well annotation to metrics.")
-        r1_annotation.index.name = "r1"
-        metrics = metrics.join(r1_annotation)
+        metrics = metrics.assign(**dict(zip(r1_annotation.index, r1_annotation.values)))
     if save_intermediate:
         to_pickle(metrics, "metrics" + suffix)
 

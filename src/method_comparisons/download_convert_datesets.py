@@ -62,7 +62,7 @@ def main():
     # Get the metadata and download the files
     for experiment in EXPERIMENTS.keys():
         print(experiment)
-        output_dir = f"data/external/{EXPERIMENTS[experiment]['GSE']}"
+        output_dir = f"data/raw/external/{EXPERIMENTS[experiment]['GSE']}"
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
 
@@ -82,16 +82,16 @@ def main():
             submit_job(cmd, sra_run, output_dir, task_name="download_sra")
 
     # Parse the two line per paired read into single read with tags
-    for experiment in EXPERIMENTS.keys():
-        output_dir = f"data/external/{EXPERIMENTS[experiment]['GSE']}"
-        sra_table = pd.read_csv(f"{output_dir}/{EXPERIMENTS[experiment]['GSM']}.annotation.csv")
-
-        splitseq = experiment.startswith("splitseq")
-        runnable = 'sci-rna_parse.py' if not splitseq else 'splitseq_parse.py'
-        output_bam = f"{output_dir}/{sra_run}.annotated.bam" if not splitseq else f"{output_dir}/{experiment}.annotated.bam"
-        for sra_run in sra_table['Run']:
-            cmd = f"python3 -u /home/arendeiro/sci-rna/src/method_comparisons/{runnable} {output_dir}/{sra_run}.bam {output_bam}"
-            submit_job(cmd, sra_run, output_dir, task_name="convert_scirna_to_cemm")
+    # for experiment in EXPERIMENTS.keys():
+    #     output_dir = f"data/raw/external/{EXPERIMENTS[experiment]['GSE']}"
+    #     sra_table = pd.read_csv(f"{output_dir}/{EXPERIMENTS[experiment]['GSM']}.annotation.csv")
+    #
+    #     splitseq = experiment.startswith("splitseq")
+    #     runnable = 'sci-rna_parse.py' if not splitseq else 'splitseq_parse.py'
+    #     output_bam = f"{output_dir}/{sra_run}.annotated.bam" if not splitseq else f"{output_dir}/{experiment}.annotated.bam"
+    #     for sra_run in sra_table['Run']:
+    #         cmd = f"python3 -u /home/dbarreca/src/scifiRNA-seq_publication/src/method_comparisons/{runnable} {output_dir}/{sra_run}.bam {output_bam}"
+    #         submit_job(cmd, sra_run, output_dir, task_name="convert_scirna_to_cemm")
 
     # # Merge the BAM files for joint processing (not actually required but sometimes convenient)
     # for experiment in EXPERIMENTS.keys():
@@ -123,3 +123,6 @@ def submit_job(
     with open(job_file, "w") as handle:
         handle.write(textwrap.dedent(cmd))
     tk.slurm_submit_job(job_file)
+
+if __name__ == "__main__":
+    main()

@@ -16,10 +16,7 @@ def main():
     print("scifi-RNA-seq pipeline")
     parser = ArgumentParser()
     cmds = [
-        'trim', 'map', 'maketracks', 'filter', 'join',
-        'barcodes', 'fix',
-        'filter_corrected', 'join_corrected',
-        'report']
+        'merge_bam', 'split_bam', 'map', 'filter', 'join', 'report']
     parser.add_argument("cmd", choices=cmds)
     parser.add_argument("-d", "--dry-run", action="store_true")
     _help = "Whether to only run samples marked with '1' in toggle column."
@@ -49,8 +46,7 @@ def main():
         print(f"Doing sample {sample['sample_name']}")
         cmd = f"make {args.cmd} "
         cmd += f"RUN_NAME={sample['sample_name']} "
-        cmd += f"FLOWCELL={sample['flowcell']} "
-        cmd += f"N_LANES={int(sample['nlanes'])} "
+        cmd += f"FLOWCELLS={sample['lanes']} "
         cmd += f"N_BARCODES={int(sample['nbarcodes'])} "
         cmd += f"ANNOTATION={sample['annotation']} "
         cmd += f"VARIABLES={sample['variables']} "

@@ -35,10 +35,6 @@ case $i in
     TIME="${i#*=}"
     shift # past argument=value
     ;;
-    --correct-barcodes=*)
-    CORRECT_BARCODES="${i#*=}"
-    shift # past argument=value
-    ;;
     *)
           # unknown option
     ;;
@@ -57,19 +53,17 @@ cd $ROOT_OUTPUT_DIR
 
 
 if [[ $SPECIES_MIXTURE = "1" ]]; then
-    ADDITIONAL_FIELDS="human,mouse,total,max,ratio,sp_ratio,doublet,unique_fraction,human_norm,total_norm,max_norm,ratio_norm,sp_ratio_norm,doublet_norm"
-    ADDITIONAL_FIELDS="human,mouse,total,max,ratio,sp_ratio,doublet,read_human,read_mouse,read_total,read_max,read_ratio,read_sp_ratio,read_doublet,unique_fraction,human_norm,total_norm,max_norm,ratio_norm,sp_ratio_norm,doublet_norm,read_human_norm,read_total_norm,read_max_norm,read_ratio_norm,read_sp_ratio_norm,read_doublet_norm"
+    #ADDITIONAL_FIELDS="human,mouse,total,max,ratio,sp_ratio,doublet,unique_fraction,human_norm,total_norm,max_norm,ratio_norm,sp_ratio_norm,doublet_norm"
+    ADDITIONAL_FIELDS="human,mouse,total,max,ratio,sp_ratio,doublet,read_human,read_mouse,read_total,read_max,read_ratio,read_sp_ratio,read_doublet,unique_fraction"
+    ADDITIONAL_FIELDS="${ADDITIONAL_FIELDS},$VARIABLES"
+    ADDITIONAL_FIELDS="${ADDITIONAL_FIELDS},human_norm,total_norm,max_norm,ratio_norm,sp_ratio_norm,doublet_norm,read_human_norm,read_total_norm,read_max_norm,read_ratio_norm,read_sp_ratio_norm,read_doublet_norm"
 else
     ADDITIONAL_FIELDS="unique_fraction"
+    ADDITIONAL_FIELDS="${ADDITIONAL_FIELDS},$VARIABLES"
 fi
 
 
 OUTPUT_SUFFIX=""
-if [[ ! -z "$CORRECT_BARCODES" ]]; then
-    OUTPUT_SUFFIX="_corrected"
-fi
-
-ADDITIONAL_FIELDS="${ADDITIONAL_FIELDS},$VARIABLES"
 
 # Simply concatenate all files
 JOB_NAME=scifi_pipeline.${RUN_NAME}.concatenate_metrics

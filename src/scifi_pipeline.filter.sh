@@ -47,18 +47,6 @@ case $i in
     TIME="${i#*=}"
     shift # past argument=value
     ;;
-    --correct-barcodes=*)
-    CORRECT_BARCODES="${i#*=}"
-    shift # past argument=value
-    ;;
-    --correct-barcode-file=*)
-    CORRECT_BARCODE_FILE="${i#*=}"
-    shift # past argument=value
-    ;;
-    --no-overwrite=*)
-    NO_OVERWRITE="${i#*=}"
-    shift # past argument=value
-    ;;
     --array-size=*)
     ARRAY_SIZE="${i#*=}"
     shift # past argument=value
@@ -79,9 +67,8 @@ echo "VARIABLES            = ${VARIABLES}"
 echo "SPECIES_MIXTURE      = ${SPECIES_MIXTURE}"
 echo "ROOT DIRECTORY       = ${ROOT_OUTPUT_DIR}"
 echo "SLURM PARAMETERS     = $CPUS, $MEM, $QUEUE, $TIME, $ARRAY_SIZE"
-echo "CORRECT_BARCODES     = $CORRECT_BARCODES"
-echo "CORRECT_BARCODE_FILE = $CORRECT_BARCODE_FILE"
 echo "R2_BARCODES          = $R2_BARCODES"
+
 # Start
 
 # # Make path absolute
@@ -97,18 +84,7 @@ OUTPUT_SUFFIX="metrics"
 if [[ $SPECIES_MIXTURE = "1" ]]; then
     ADDITIONAL_ARGS="$ADDITIONAL_ARGS --species-mixture "
 fi
-if [[ $CORRECT_BARCODES = "1" ]]; then
-    ADDITIONAL_ARGS="$ADDITIONAL_ARGS --correct-r2-barcodes "
-    JOB_DESCR="filter_corrected"
-    OUTPUT_SUFFIX="metrics_corrected"
-fi
-if [[ ! -z $CORRECT_BARCODE_FILE ]]; then
-    ADDITIONAL_ARGS="$ADDITIONAL_ARGS --correct-r2-barcode-file $CORRECT_BARCODE_FILE"
-fi
 
-if [[ ! -z NO_OVERWRITE ]]; then
-    NO_OVERWRITE="0"
-fi
 
 mkdir -p $ROOT_OUTPUT_DIR
 cd $ROOT_OUTPUT_DIR
@@ -119,13 +95,7 @@ ARRAY_FILE=${ROOT_OUTPUT_DIR}/scifi_pipeline.${RUN_NAME}.${JOB_DESCR}.array_file
 rm -rf $ARRAY_FILE
 for SAMPLE_NAME in `tail -n +2 $BARCODE_ANNOTATION | cut -d , -f 1`; do
     SAMPLE_DIR=${ROOT_OUTPUT_DIR}/${SAMPLE_NAME}
-    if [[ $NO_OVERWRITE = "1" ]]; then
-        if [[ ! -f ${SAMPLE_DIR}/${SAMPLE_NAME}.${OUTPUT_SUFFIX}.csv.gz ]]; then
-            echo $SAMPLE_NAME $SAMPLE_DIR >> $ARRAY_FILE
-        fi
-    else
-        echo $SAMPLE_NAME $SAMPLE_DIR >> $ARRAY_FILE
-    fi
+    echo $SAMPLE_NAME $SAMPLE_DIR >> $ARRAY_FILE
 done
 
 
