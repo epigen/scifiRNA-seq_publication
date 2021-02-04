@@ -3,6 +3,7 @@
 
 function join_by { local IFS="$1"; shift; echo "$*"; }
 
+RAW_BASEDIR=`pwd`/data/raw/run
 
 #RUNS=(PD2XX1_10xscRNA_Human_Tcells_2S3Qmixed_Stimulated PD2XX1_10xscRNA_Human_Tcells_2S3Qmixed_Unstimulated PD2XX1_10xscRNA_Human_PBMCs_2S3Qmixed)
 RUNS=(T46_10xGenomics_1_4lines_7650_nuclei T46_10xGenomics_2_4lines_7650_MeOH-cells T46_10xGenomics_3_4lines_7650_intact-cells)
@@ -34,7 +35,6 @@ MEM=200G
 QUEUE=mediumq
 TIME=2-00:00:00
 
-RAW_BASEDIR=`pwd`/data/raw/run
 
 BAMS=(
 ${RAW_BASEDIR}/${FLOWCELL}/${FLOWCELL}_1_samples_10x/${FLOWCELL}_1#${RUN_NAME}_01.bam
