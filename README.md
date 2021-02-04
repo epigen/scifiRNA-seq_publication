@@ -5,8 +5,8 @@ Pipeline and analysis scripts for the scifi-RNA-seq publication.
 
 > :warning: This repository includes source code to reproduce the analysis in the manuscript and won't be maintained to support the analysis of other datasets. For that, [see the general-purpose data processing pipeline of scifi-RNA-seq data](https://github.com/epigen/scifiRNA-seq).
 
-The pipeline works by launching a single entrypoint, the `scifi` python script.
-This script parses an annotation file passed as input and then
+The pipeline works by launching a single executabke, the `scifi` python script.
+This entrypoint script parses an annotation file passed as input and then
 calls the [Makefile](Makefile) for each sample, which in turns calls the relevant shell script.
 
 The annotations used for the publication are in the [metadata folder](metadata/). The main annotation file is [annotation.csv](metadata/annotation.csv)
