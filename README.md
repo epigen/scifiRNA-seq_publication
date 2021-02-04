@@ -1,32 +1,35 @@
-sciRNA-seq/scifi-RNA-seq
+scifi-RNA-seq
 ===================
 
-Pipeline and analysis scripts for combinatorial indexing single-cell RNA-seq (sciRNA-seq) and scifi-RNA-seq.
+Pipeline and analysis scripts for the scifi-RNA-seq publication.
 
-Check the [python executable](scifi), the [Makefile](Makefile) and [source files in src](src/) for more.
+The pipeline works by launching a single entrypoint, the `scifi` python script.
+This script parses an annotation file passed as input and then
+calls the [Makefile](Makefile) for each sample, which in turns calls the relevant shell script.
 
-Due to the volatility of development of the project in the lab, each experiment can differ wildely from the previous.
-I decided not to keep all the code specific to each version/run, but simply to git tag each version and modify the code to the latest version. A brief description of the various versions is below:
+The annotations used for the publication are in the [metadata folder](metadata/). The main annotation file is [annotation.csv](metadata/annotation.csv)
 
-|experiment|description|outcome|
-|-|-|-|
-|**PD194-PD195**|scifiRNA-seq - primary human material (PBMCs and T-cells stimulated and unstimulated); high cell number (700k cells)|Very good quality|
-|**PD191-PD193**|scifiRNA-seq - primary material, iPS organoid; cell line mixture; crazy high number (2M cells)|Samples with more than 700k cell input have low complexity likely due to inneficiency of cleanup procedure with so much material; remaining experiments viable and of good quality|
-|**PD190**|scifiRNA-seq - high cell number; species and cell line mixtures|Amazing quality|
-|**PD187-188**|scifiRNA-seq - new version|Amaaaazing!|
-|**SCI023-SCI024**|scifiRNA-seq - T cells from 4 donors|Some problems remain|
-|**SCI022**|scifiRNA-seq - Mixture cells overtook primary cells; first 384 well experiment; learned a few things about going into primary cells; barcodes need further inspection|Failure|
-|**SCI021**|scifiRNA-seq| Large scale 125K mixture experiment, hitting native 10X limitations, scifi still with a lot of space to grow, barcodes need inspection though|Success|
-|**SCI020-resequencing**|scifiRNA-seq, publication 4K mixture experiment"|Success|
-|**SCI020**|scifiRNA-seq| found out optimal tagmentation conditions"|Success|
-|**SCI019-resequencing**|scifiRNA-seq|Success|
-|**SCI019**|scifiRNA-seq| found out 10M reads are enough for rough estimate of experiment pass/fail"|Success|
-|**SCI017-reanalysis**|scifiRNA-seq| found out major bottlenecks| understand system better"|Success|
-|**SCI017**|scifiRNA-seq| but somewhat innefficient"|Success|
-|**SCI016**|first scifiRNA-seq|Failure, but promising|
-|**SCI012-013**|sciRNA-seq optimizations: various enzymes, cycles, cells vs nuclei, anchored vs unanchored primers|Greatly improved|
-|**SCI007/010/011**|sciRNA-seq optimizations: nuclei extraction/preparation/sorting|Mildly improved|
-|**BSF_0477_HJ7J7BGX2**|First single-cell sciRNA-seq. A species-mixing experiment|Complete failure|
-|**SCI004**|First test of sciRNA-seq, but run in bulk mode|Success|
+All the environment variables (paths, reference, software, etc... ) are set at the top of the [Makefile](Makefile). Please adjust to your environment.
 
-the experiment IDs correspond to the [metadata annotations](metadata/annotation.csv)
+Please note that the various shell scripts in [src/scifi_pipeline.{step}.sh](src/) use SLURM to submit the step. For the map and filter steps an array job will be submitted. Please
+adjust the queue names and slurm settings in the Makefile for each step.
+
+The steps to reproduce the analysis must be ran one by one in the following order:
+
+ - **split_bam** splits the merged bams downloaded from GEO into well-specific bam files and reconstructs the input folder structure from demultiplexing
+ - **map** performs the mapping of the well-specific bam files to the reference transcriptome
+ - **filter** selects the mapped reads in the mapped bam files and generates count matrices and metrics
+ - **join** merges together the well-specific count matrices and metrics into sample-specific files
+ - **report** generates various QC plots as well as scanpy's anndata objects serialized in h5ad format
+
+To run the pipeline we suggest to use the following command: `./scifi {step} -t ./metadata/annotation.csv`. This will run the step specified only for those samples which have the toggle field set to 1 in the [annotation.csv](metadata/annotation.csv) file. We also suggest to setup a dedicate virtualenv to run the scripts, using the dependencies specified in the [requirements.txt](requirements.txt) file.
+
+Other **requiremets** are:
+  - STAR (and indexed genomes)
+  - [featureCounts](http://subread.sourceforge.net/) binary installed on your PATH
+  - [samtools](http://www.htslib.org/) binary installed on your PATH
+
+
+Please note that 10x samples cannot be processed by the pipeline (except for the 'split' step). To process them in a consisten way, please use the [process_10x](src/method_comparisons/process_10x.sh) script to run those samples after running the 'split' step.
+
+Check the [python executable](scifi), the [Makefile](Makefile) and [source files in src](src/) for more details.
