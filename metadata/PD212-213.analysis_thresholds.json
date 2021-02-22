@@ -1,0 +1,168 @@
+{
+    "T46_10xGenomics_1_4lines_7650_nuclei": {
+        "min_umis_per_cell": 1500,
+        "min_cells_per_gene": 10,
+        "min_genes_per_cell": 1500,
+        "min_efficiency_ratio": 0.68,
+        "max_efficiency_ratio": 1,
+        "min_percent_mito": 0,
+        "max_percent_mito": 20,
+        "min_percent_ribo": 0,
+        "max_percent_ribo": 5.0,
+        "min_percent_malat1": 0,
+        "max_percent_malat1": 80,
+        "leiden": {
+            "resolution": 0.2
+        },
+        "plot_raw": false,
+        "diff_exp": {
+            "max_genes": 100
+        }
+    },
+    "T46_10xGenomics_2_4lines_7650_MeOH-cells": {
+        "min_umis_per_cell": 1500,
+        "min_cells_per_gene": 10,
+        "min_genes_per_cell": 100,
+        "min_efficiency_ratio": 0.68,
+        "max_efficiency_ratio": 1,
+        "min_percent_mito": 0,
+        "max_percent_mito": 20,
+        "min_percent_ribo": 0,
+        "max_percent_ribo": 40,
+        "min_percent_malat1": 0,
+        "max_percent_malat1": 80,
+        "leiden": {
+            "resolution": 0.2
+        },
+        "plot_raw": false,
+        "diff_exp": {
+            "max_genes": 100
+        }
+    },
+    "T46_10xGenomics_3_4lines_7650_intact-cells": {
+        "min_umis_per_cell": 1500,
+        "min_cells_per_gene": 10,
+        "min_genes_per_cell": 1000,
+        "min_efficiency_ratio": 0.68,
+        "max_efficiency_ratio": 1,
+        "min_percent_mito": 0,
+        "max_percent_mito": 20,
+        "min_percent_ribo": 0,
+        "max_percent_ribo": 60,
+        "min_percent_malat1": 0,
+        "max_percent_malat1": 80,
+        "leiden": {
+            "resolution": 0.2
+        },
+        "plot_raw": false,
+        "diff_exp": {
+            "max_genes": 100
+        }
+    },
+    "PD212_scifi_1N_4lines_7650_nuclei": {
+        "min_umis_per_cell": 250,
+        "min_cells_per_gene": 10,
+        "min_genes_per_cell": 100,
+        "min_efficiency_ratio": 0.60,
+        "max_efficiency_ratio": 0.90,
+        "min_percent_mito": 0,
+        "max_percent_mito": 20,
+        "min_percent_ribo": 0,
+        "max_percent_ribo": 20,
+        "min_percent_malat1": 0,
+        "max_percent_malat1": 30,
+        "leiden": {
+            "resolution": 0.2
+        },
+        "plot_raw": false,
+        "diff_exp": {
+            "max_genes": 100
+        }
+    },
+    "PD212_scifi_2C_4lines_7650_MeOH-cells": {
+        "min_umis_per_cell": 250,
+        "min_cells_per_gene": 10,
+        "min_genes_per_cell": 100,
+        "min_efficiency_ratio": 0.60,
+        "max_efficiency_ratio": 0.90,
+        "min_percent_mito": 0,
+        "max_percent_mito": 20,
+        "min_percent_ribo": 0,
+        "max_percent_ribo": 20,
+        "min_percent_malat1": 0,
+        "max_percent_malat1": 30,
+        "leiden": {
+            "resolution": 0.2
+        },
+        "plot_raw": false,
+        "diff_exp": {
+            "max_genes": 100
+        }
+    },
+    "PD213_scifi_1_CRISPR-TCR_15300_MeOH-cells": {
+        "min_umis_per_cell": 250,
+        "min_cells_per_gene": 10,
+        "min_genes_per_cell": 100,
+        "min_efficiency_ratio": 0.60,
+        "max_efficiency_ratio": 0.90,
+        "min_percent_mito": 0,
+        "max_percent_mito": 20,
+        "min_percent_ribo": 0,
+        "max_percent_ribo": 20,
+        "min_percent_malat1": 0,
+        "max_percent_malat1": 30,
+        "leiden": {
+            "resolution": 0.2
+        },
+        "plot_raw": false,
+        "diff_exp": {
+            "variables": ["leiden", "TCR_status", "gRNA"],
+            "max_genes": 100,
+            "threshold_variable": "pvals"
+        }
+    },
+    "PD213_scifi_2_CRISPR-TCR_77300_MeOH-cells": {
+        "min_umis_per_cell": 250,
+        "min_cells_per_gene": 10,
+        "min_genes_per_cell": 100,
+        "min_efficiency_ratio": 0.60,
+        "max_efficiency_ratio": 0.90,
+        "min_percent_mito": 0,
+        "max_percent_mito": 20,
+        "min_percent_ribo": 0,
+        "max_percent_ribo": 20,
+        "min_percent_malat1": 0,
+        "max_percent_malat1": 30,
+        "leiden": {
+            "resolution": 0.2
+        },
+        "plot_raw": false,
+        "diff_exp": {
+            "variables": ["leiden", "TCR_status", "gRNA"],
+            "max_genes": 100,
+            "threshold_variable": "pvals"
+        }
+    },
+    "PD213_scifi_3_CRISPR-TCR_15300_nuclei": {
+        "min_umis_per_cell": 250,
+        "min_cells_per_gene": 10,
+        "min_genes_per_cell": 100,
+        "min_efficiency_ratio": 0.60,
+        "max_efficiency_ratio": 0.90,
+        "min_percent_mito": 0,
+        "max_percent_mito": 20,
+        "min_percent_ribo": 0,
+        "max_percent_ribo": 20,
+        "min_percent_malat1": 0,
+        "max_percent_malat1": 30,
+        "leiden": {
+            "resolution": 0.2
+        },
+        "plot_raw": false,
+        "diff_exp": {
+            "variables": ["leiden", "TCR_status", "gRNA"],
+            "max_genes": 100,
+            "threshold_variable": "pvals"
+        }
+    }
+}

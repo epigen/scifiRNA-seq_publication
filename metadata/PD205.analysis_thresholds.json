@@ -1,0 +1,162 @@
+{
+    "PD2XX1_10xscRNA_Human_PBMCs_2S3Qmixed": {
+        "min_umis_per_cell": 500,
+        "min_cells_per_gene": 10,
+        "min_genes_per_cell": 1,
+        "min_efficiency_ratio": 0.68,
+        "max_efficiency_ratio": 1,
+        "min_percent_mito": 0,
+        "max_percent_mito": 20,
+        "min_percent_ribo": 0,
+        "max_percent_ribo": 40,
+        "min_percent_malat1": 3.5,
+        "max_percent_malat1": 80,
+        "leiden": {
+            "resolution": 0.5
+        },
+        "plot_raw": false,
+        "diff_exp": {
+            "max_genes": 100
+        }
+    },
+    "PD2XX1_10xscRNA_Human_Tcells_2S3Qmixed_Unstimulated": {
+        "min_umis_per_cell": 2800,
+        "min_cells_per_gene": 10,
+        "min_genes_per_cell": 1,
+        "min_efficiency_ratio": 0.75,
+        "max_efficiency_ratio": 0.85,
+        "min_percent_mito": 0,
+        "max_percent_mito": 30,
+        "min_percent_ribo": 5,
+        "max_percent_ribo": 40,
+        "min_percent_malat1": 1,
+        "max_percent_malat1": 80,
+        "leiden": {
+            "resolution": 0.5
+        },
+        "plot_raw": false,
+        "diff_exp": {
+            "max_genes": 100
+        }
+    },
+    "PD2XX1_10xscRNA_Human_Tcells_2S3Qmixed_Stimulated": {
+        "min_umis_per_cell": 2800,
+        "min_cells_per_gene": 10,
+        "min_genes_per_cell": 1,
+        "min_efficiency_ratio": 0.75,
+        "max_efficiency_ratio": 0.85,
+        "min_percent_mito": 0,
+        "max_percent_mito": 30,
+        "min_percent_ribo": 5,
+        "max_percent_ribo": 40,
+        "min_percent_malat1": 1,
+        "max_percent_malat1": 80,
+        "leiden": {
+            "resolution": 0.5
+        },
+        "plot_raw": false,
+        "diff_exp": {
+            "max_genes": 100
+        }
+    },
+    "PD2XX1_10xscRNA_Mouse_LI": {
+        "min_umis_per_cell": 1000,
+        "min_cells_per_gene": 10,
+        "min_genes_per_cell": 100,
+        "min_efficiency_ratio": 0.5,
+        "max_efficiency_ratio": 0.85,
+        "min_percent_mito": 0,
+        "max_percent_mito": 15,
+        "min_percent_ribo": 1,
+        "max_percent_ribo": 30,
+        "min_percent_malat1": 1,
+        "max_percent_malat1": 20,
+        "leiden": {
+            "resolution": 0.25
+        },
+        "plot_raw": false,
+        "diff_exp": {
+            "max_genes": 100
+        }
+    },
+    "PD206_1_scifi_Human_PBMCs_Nuclei1pFA": {
+        "min_umis_per_cell": 100,
+        "min_cells_per_gene": 10,
+        "min_genes_per_cell": 1,
+        "min_efficiency_ratio": 0,
+        "max_efficiency_ratio": 1,
+        "min_percent_mito": 0,
+        "max_percent_mito": 100,
+        "min_percent_ribo": 0,
+        "max_percent_ribo": 100,
+        "min_percent_malat1": 0,
+        "max_percent_malat1": 100,
+        "leiden": {
+            "resolution": 0.5
+        },
+        "plot_raw": true,
+        "diff_exp": {
+            "max_genes": 100
+        }
+    },
+    "PD206_4_scifi_Human_Tcells_Nuclei1pFA": {
+        "min_umis_per_cell": 100,
+        "min_cells_per_gene": 10,
+        "min_genes_per_cell": 1,
+        "min_efficiency_ratio": 0.3,
+        "max_efficiency_ratio": 1,
+        "min_percent_mito": 0,
+        "max_percent_mito": 50,
+        "min_percent_ribo": 0,
+        "max_percent_ribo": 40,
+        "min_percent_malat1": 0,
+        "max_percent_malat1": 70,
+        "leiden": {
+            "resolution": 0.5
+        },
+        "plot_raw": true,
+        "diff_exp": {
+            "max_genes": 100
+        }
+    },
+    "PD205_1_scifi_Mouse_LI_CellsMeOH": {
+        "min_umis_per_cell": 100,
+        "min_cells_per_gene": 10,
+        "min_genes_per_cell": 1,
+        "min_efficiency_ratio": 0.4,
+        "max_efficiency_ratio": 1,
+        "min_percent_mito": 0,
+        "max_percent_mito": 80,
+        "min_percent_ribo": 0,
+        "max_percent_ribo": 80,
+        "min_percent_malat1": 0,
+        "max_percent_malat1": 100,
+        "leiden": {
+            "resolution": 0.5
+        },
+        "plot_raw": true,
+        "diff_exp": {
+            "max_genes": 100
+        }
+    },
+    "PD205_2_scifi_Mouse_LI_NucleiFresh": {
+        "min_umis_per_cell": 100,
+        "min_cells_per_gene": 10,
+        "min_genes_per_cell": 1,
+        "min_efficiency_ratio": 0.4,
+        "max_efficiency_ratio": 1,
+        "min_percent_mito": 0,
+        "max_percent_mito": 80,
+        "min_percent_ribo": 0,
+        "max_percent_ribo": 80,
+        "min_percent_malat1": 0,
+        "max_percent_malat1": 100,
+        "leiden": {
+            "resolution": 0.5
+        },
+        "plot_raw": true,
+        "diff_exp": {
+            "max_genes": 100
+        }
+    }
+}
