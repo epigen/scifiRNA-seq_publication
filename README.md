@@ -35,3 +35,10 @@ Other **requiremets** are:
 Please note that 10x samples cannot be processed by the pipeline (except for the 'split' step). To process them in a consisten way, please use the [process_10x](src/method_comparisons/process_10x.sh) script to run those samples after running the 'split' step.
 
 Check the [python executable](scifi), the [Makefile](Makefile) and [source files in src](src/) for more details.
+
+Scripts used in the downstream analysis of the data are:
+ - [monte_carlo_simulations.py](src/monte_carlo_simulations.py): for the theoretical "best-case scenario" simulation experiments;
+ - [droplet_modeling.py](src/droplet_modeling.py): for the modeling of the Chromium device and prediction of collision rates;
+ - [analysis.4lines_CROP-seq.py](src/analysis.4lines_CROP-seq.py): for the cell line mixture and CROP-seq experiments;
+ - [analysis.PBMC_Tcell.py](src/analysis.PBMC_Tcell.py): for the experiments with primary human data;
+ - [method_comparison.ipynb](src/method_comparison.ipynb): for the comparison across various methods (10X Chromium, sci-rna, sciPlex, SPLiT-seq, and scifi-RNA-seq).
